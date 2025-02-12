@@ -1,14 +1,47 @@
 # prompts.chat Extension
 
-<p align="center">
-  <img src="public/prompts-chat-img.png" alt="prompts.chat Extension Screenshot" width="800" style="max-width: 100%; height: auto;" />
-</p>
+<div align="center">
+
+  <img src="src/public/prompts-chat-img.png" alt="prompts.chat Extension Screenshot" width="800" style="max-width: 100%; height: auto;" />
+
+  <div align="center" style="display: flex; justify-content: center; gap: 20px; margin: 20px 0;">
+    <div align="center">
+      <a href="#chrome">
+        <img src="src/public/store-icons/chrome.png" alt="Chrome Web Store" height="58" />
+        <br />
+        <sub><b>Chrome Web Store</b></sub>
+        <br />
+        <sup>Coming Soon</sup>
+      </a>
+    </div>
+    <div align="center">
+      <a href="#firefox">
+        <img src="src/public/store-icons/firefox.png" alt="Firefox Add-ons" height="58" />
+        <br />
+        <sub><b>Firefox Add-ons</b></sub>
+        <br />
+        <sup>Coming Soon</sup>
+      </a>
+    </div>
+    <div align="center">
+      <a href="#edge">
+        <img src="src/public/store-icons/edge.png" alt="Edge Add-ons" height="58" />
+        <br />
+        <sub><b>Edge Add-ons</b></sub>
+        <br />
+        <sup>Coming Soon</sup>
+      </a>
+    </div>
+  </div>
+
+</div>
 
 A browser extension that enhances [prompts.chat](https://prompts.chat) with additional features and improvements. This extension is built on top of the amazing [Awesome ChatGPT Prompts](https://github.com/f/awesome-chatgpt-prompts) collection by [Fatih Kadir Akın](https://github.com/f).
 
 ## Features
 
 - ⚡️ One-Click Prompt Insertion: Instantly add prompts to your current chat or start a new conversation
+- 🌐 Cross-Browser Support: Available for Chrome, Firefox, and Edge
 - 🤖 Multi-Platform Support: Works with ChatGPT, Claude, GitHub Copilot, Google Gemini, Perplexity, and Mistral
 - 🔍 Enhanced search capabilities
 - 🌓 Dark/Light mode support
@@ -18,19 +51,40 @@ A browser extension that enhances [prompts.chat](https://prompts.chat) with addi
 
 ## Installation
 
-### Chrome Web Store
-
+### Browser Stores
+#### Chrome
 Coming soon...
 <!-- [Install from Chrome Web Store](https://chromewebstore.google.com/detail/) -->
 
-<!-- You can also download the latest version from our [GitHub Releases](https://github.com/fatihsolhan/prompts-chat-extension/releases) page. -->
+#### Firefox
+Coming soon...
+<!-- [Install from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/) -->
+
+#### Edge
+Coming soon...
+<!-- [Install from Edge Add-ons](https://microsoftedge.microsoft.com/addons/) -->
+
+### GitHub Releases
+You can download the latest browser-specific packages from our [GitHub Releases](https://github.com/fatihsolhan/prompts-chat-extension/releases) page:
+- `prompts-chat-{version}-chrome-extension.zip` - For Chrome
+- `prompts-chat-{version}-edge-extension.zip` - For Edge
+- `prompts-chat-{version}-firefox-extension.zip` - For Firefox
 
 ### Manual Installation
 1. Clone this repository
 2. Follow the [Development](#development) steps to build the extension
-3. Open Chrome and navigate to `chrome://extensions/`
-4. Enable "Developer mode" in the top right corner
-5. Click "Load unpacked" and select the `dist` directory created by the build process
+3. For Chrome:
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" in the top right corner
+   - Click "Load unpacked" and select the `dist` directory
+4. For Firefox:
+   - Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
+   - Click "Load Temporary Add-on"
+   - Select any file from the `dist` directory
+5. For Edge:
+   - Open Edge and navigate to `edge://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked" and select the same `dist` directory as Chrome
 
 ## Development
 
@@ -38,11 +92,16 @@ Coming soon...
 # Install dependencies
 yarn install
 
-# Start development server
+# Start development server with browser hot-reload
 yarn dev
 
 # Build for production
-yarn build
+yarn build          # Builds Chrome/Edge version
+yarn build:firefox  # Builds Firefox version
+
+# Create distribution packages
+yarn zip           # Creates Chrome/Edge package
+yarn zip:firefox   # Creates Firefox package
 ```
 
 ## Privacy
@@ -51,16 +110,6 @@ This extension does not collect any personal information. Read our full [Privacy
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Releases
-
-This project uses [semantic-release](https://semantic-release.gitbook.io/) for automated versioning and releases. When PRs are merged to main:
-- Version is automatically determined from commit messages
-- CHANGELOG.md is automatically updated
-- GitHub Release is created
-- Extension is published to Chrome Web Store
-
-Check our [releases page](https://github.com/fatihsolhan/prompts-chat-extension/releases) for the latest versions.
 
 ### Adding New Prompts
 

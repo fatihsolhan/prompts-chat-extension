@@ -28,16 +28,40 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build
-        run: yarn build
-
-      - name: Zip Extension
+      - name: Build Extensions
         run: |
-          cd dist
-          zip -r ../extension.zip *
+          # Ensure clean builds
+          rm -rf dist .output
+          yarn build        # Builds Chrome/Edge version
+          yarn build:firefox
+
+      - name: Create Extension Packages
+        run: |
+          # Ensure clean zips
+          rm -rf dist/*.zip
+          yarn zip          # Creates Chrome/Edge package
+          yarn zip:firefox
+
+          # Rename files for clarity
+          cd dist || exit 1
+          for f in prompts-chat-*-chrome.zip; do
+            [ -f "$f" ] && mv "$f" "${f/chrome/chrome-extension}"
+            # Create a copy for Edge (same file, different name)
+            [ -f "${f/chrome/chrome-extension}" ] && cp "${f/chrome/chrome-extension}" "${f/chrome/edge-extension}"
+          done
+          for f in prompts-chat-*-firefox.zip; do
+            [ -f "$f" ] && mv "$f" "${f/firefox/firefox-extension}"
+          done
+          for f in prompts-chat-*-sources.zip; do
+            [ -f "$f" ] && mv "$f" "${f/sources/firefox-sources}"
+          done
           cd ..
 
+          # Verify files exist
+          ls -la dist/prompts-chat-*-{chrome,edge,firefox}-extension.zip dist/prompts-chat-*-firefox-sources.zip || exit 1
+
       - name: Semantic Release
+        id: semantic
         uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -45,14 +69,56 @@ jobs:
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
+            @semantic-release/github
             conventional-changelog-conventionalcommits
+          branches: |
+            [
+              'main'
+            ]
 
-      - name: Upload to Chrome Web Store
-        if: success()
-        uses: mnao305/chrome-extension-upload@v4.0.1
-        with:
-          file-path: extension.zip
-          extension-id: ${{ secrets.EXTENSION_ID }}
-          client-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          refresh-token: ${{ secrets.REFRESH_TOKEN }}
+      - name: Upload Release Assets
+        if: steps.semantic.outputs.new_release_published == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Uploading assets for version ${{ steps.semantic.outputs.new_release_version }}..."
+          gh release upload ${{ steps.semantic.outputs.new_release_version }} \
+            dist/prompts-chat-*-chrome-extension.zip \
+            dist/prompts-chat-*-edge-extension.zip \
+            dist/prompts-chat-*-firefox-extension.zip \
+            dist/prompts-chat-*-firefox-sources.zip \
+            --clobber
+
+      - name: Submit to Browser Stores
+        if: steps.semantic.outputs.new_release_published == 'true'
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_CLIENT_SECRET: ${{ secrets.EDGE_CLIENT_SECRET }}
+          EDGE_ACCESS_TOKEN_URL: ${{ secrets.EDGE_ACCESS_TOKEN_URL }}
+        run: |
+          # Verify files exist before submission
+          ls -la dist/prompts-chat-*-{chrome,edge,firefox}-extension.zip dist/prompts-chat-*-firefox-sources.zip || exit 1
+
+          # Test submission first
+          echo "Running dry-run submission for version ${{ steps.semantic.outputs.new_release_version }}..."
+          yarn wxt submit --dry-run \
+            --chrome-zip dist/prompts-chat-*-chrome-extension.zip \
+            --edge-zip dist/prompts-chat-*-edge-extension.zip \
+            --firefox-zip dist/prompts-chat-*-firefox-extension.zip --firefox-sources-zip dist/prompts-chat-*-firefox-sources.zip \
+            --edge-zip dist/prompts-chat-*-chrome-extension.zip # Edge uses Chrome package
+
+          # If dry-run succeeds, do the actual submission
+          echo "Submitting version ${{ steps.semantic.outputs.new_release_version }} to stores..."
+          yarn wxt submit \
+            --chrome-zip dist/prompts-chat-*-chrome-extension.zip \
+            --edge-zip dist/prompts-chat-*-edge-extension.zip \
+            --firefox-zip dist/prompts-chat-*-firefox-extension.zip --firefox-sources-zip dist/prompts-chat-*-firefox-sources.zip \
+            --edge-zip dist/prompts-chat-*-chrome-extension.zip # Edge uses Chrome package
