@@ -4,35 +4,31 @@
 
   <img src="src/public/prompts-chat-img.png" alt="prompts.chat Extension Screenshot" width="800" style="max-width: 100%; height: auto;" />
 
-  <div align="center" style="display: flex; justify-content: center; gap: 20px; margin: 20px 0;">
-    <div align="center">
-      <a href="#chrome">
-        <img src="src/public/store-icons/chrome.png" alt="Chrome Web Store" height="58" />
-        <br />
-        <sub><b>Chrome Web Store</b></sub>
-        <br />
-        <sup>Coming Soon</sup>
-      </a>
-    </div>
-    <div align="center">
-      <a href="#firefox">
-        <img src="src/public/store-icons/firefox.png" alt="Firefox Add-ons" height="58" />
-        <br />
-        <sub><b>Firefox Add-ons</b></sub>
-        <br />
-        <sup>Coming Soon</sup>
-      </a>
-    </div>
-    <div align="center">
-      <a href="#edge">
-        <img src="src/public/store-icons/edge.png" alt="Edge Add-ons" height="58" />
-        <br />
-        <sub><b>Edge Add-ons</b></sub>
-        <br />
-        <sup>Coming Soon</sup>
-      </a>
-    </div>
-  </div>
+  <table>
+    <tr>
+      <td align="center">
+        <a href="#chrome">
+          <img src="src/public/store-icons/chrome.png" alt="Chrome Web Store" height="60" /><br />
+          <span>Chrome Web Store</span><br />
+          <span>Coming Soon</span>
+        </a>
+      </td>
+      <td align="center">
+        <a href="#firefox">
+          <img src="src/public/store-icons/firefox.png" alt="Firefox Add-ons" height="60" /><br />
+          <span>Firefox Add-ons</span><br />
+          <span>Coming Soon</span>
+        </a>
+      </td>
+      <td align="center">
+        <a href="#edge">
+          <img src="src/public/store-icons/edge.png" alt="Edge Add-ons" height="60" /><br />
+          <span>Edge Add-ons</span><br />
+          <span>Coming Soon</span>
+        </a>
+      </td>
+    </tr>
+  </table>
 
 </div>
 
