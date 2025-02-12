@@ -6,10 +6,10 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useCopy } from "@/hooks/useCopy";
+import { usePrompt } from "@/hooks/usePrompt";
 import { AI_MODELS } from "@/lib/constants";
-import { usePrompts } from "@/lib/contexts/PromptsContext";
+import { usePromptsContext } from "@/lib/contexts/PromptsContext";
 import { AIModel } from "@/lib/types";
-import { usePromptInAI } from "@/lib/utils/ai-interactions";
 import { Check, ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -25,7 +25,7 @@ export function PromptCard({
   prompt,
   contributor,
 }: PromptCardProps) {
-  const { selectedModel, setSelectedModel, query: searchQuery } = usePrompts();
+  const { selectedModel, setSelectedModel, query: searchQuery } = usePromptsContext();
   const [isOpen, setIsOpen] = useState(!!searchQuery);
   const { copy } = useCopy();
   const [isCopied, setIsCopied] = useState(false);
@@ -46,10 +46,12 @@ export function PromptCard({
   const currentModel = AI_MODELS.find(m => m.id === selectedModel) as unknown as AIModel;
   if (!currentModel) return null;
 
+  const { sendPrompt } = usePrompt();
+
   const handleUsePrompt = async () => {
     setIsLoading(true);
     try {
-      await usePromptInAI(prompt, currentModel);
+      await sendPrompt(prompt);
     } finally {
       setIsLoading(false);
     }

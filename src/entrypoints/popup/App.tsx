@@ -4,13 +4,13 @@ import { LoadingPrompts } from '@/components/LoadingPrompts';
 import { Navbar } from '@/components/Navbar';
 import { PromptsList } from '@/components/PromptsList';
 import { ScrollToTop } from '@/components/ScrollToTop';
-import { PromptsProvider, usePrompts } from './lib/contexts/PromptsContext';
+import { PromptsProvider, usePromptsContext } from '@/lib/contexts/PromptsContext';
 
 function AppContent() {
-  const { filteredPrompts, isLoading } = usePrompts();
+  const { filteredPrompts, isLoading } = usePromptsContext();
   return (
     <>
-      <div className="min-h-screen bg-muted dark:bg-muted/30">
+      <div className="min-h-screen bg-muted dark:bg-muted/30 min-w-[300px]">
         <Navbar />
         <Container>
           <main className="mx-auto py-6">

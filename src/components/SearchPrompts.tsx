@@ -6,12 +6,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { usePrompts } from "@/lib/contexts/PromptsContext";
+import { usePromptsContext } from "@/lib/contexts/PromptsContext";
 import { cn } from "@/lib/utils";
 import { Code2, Sparkles } from "lucide-react";
 
 export function SearchPrompts() {
-  const { query, setQuery, devMode, setDevMode } = usePrompts();
+  const { query, setQuery, devMode, setDevMode } = usePromptsContext();
 
   return (
     <header className="flex flex-col gap-2">

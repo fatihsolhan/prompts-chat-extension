@@ -1,10 +1,10 @@
-import { AIModel } from "./types";
+import { AIModel } from "@/lib/types";
 
 export const AI_MODELS = [
   {
     id: 'github-copilot',
     name: 'GitHub Copilot Chat',
-    icon: '/github-copilot-icon.svg',
+    icon: '/ai-icons/github-copilot-icon.svg',
     baseUrl: 'https://github.com/copilot',
     promptUrl: 'https://github.com/copilot?prompt={prompt}',
     inputSelector: '#copilot-chat-textarea'
@@ -12,7 +12,7 @@ export const AI_MODELS = [
   {
     id: 'chatgpt',
     name: 'ChatGPT',
-    icon: '/openai-icon.svg',
+    icon: '/ai-icons/openai-icon.svg',
     baseUrl: 'https://chatgpt.com',
     promptUrl: 'https://chatgpt.com/?prompt={prompt}',
     inputSelector: '#prompt-textarea p'
@@ -20,7 +20,7 @@ export const AI_MODELS = [
   {
     id: 'claude',
     name: 'Claude',
-    icon: '/claude-ai-icon.svg',
+    icon: '/ai-icons/claude-ai-icon.svg',
     baseUrl: 'https://claude.ai',
     promptUrl: 'https://claude.ai/new?q={prompt}',
     inputSelector: '[contenteditable] p'
@@ -28,7 +28,7 @@ export const AI_MODELS = [
   {
     id: 'perplexity',
     name: 'Perplexity',
-    icon: '/perplexity-ai-icon.svg',
+    icon: '/ai-icons/perplexity-ai-icon.svg',
     baseUrl: 'https://www.perplexity.ai',
     promptUrl: 'https://www.perplexity.ai/search?q={prompt}',
     inputSelector: 'textarea[placeholder]'
@@ -36,7 +36,7 @@ export const AI_MODELS = [
   {
     id: 'gemini',
     name: 'Gemini',
-    icon: '/google-gemini-icon.svg',
+    icon: '/ai-icons/google-gemini-icon.svg',
     baseUrl: 'https://gemini.google.com',
     promptUrl: '',
     inputSelector: 'rich-textarea p'
@@ -53,7 +53,7 @@ export const AI_MODELS = [
   {
     id: 'mistral',
     name: 'Mistral',
-    icon: '/mistral-ai-icon.svg',
+    icon: '/ai-icons/mistral-ai-icon.svg',
     baseUrl: 'https://chat.mistral.ai',
     promptUrl: 'https://chat.mistral.ai/chat?q={prompt}',
     inputSelector: 'textarea'

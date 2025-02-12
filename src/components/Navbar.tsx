@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { usePrompts } from "@/lib/contexts/PromptsContext";
+import { isDarkModeStorage, useStorage } from "@/lib/utils/storage";
 import { Github, Info, Moon, Sun } from "lucide-react";
 import { AboutDialog } from "./AboutDialog";
 import { Container } from "./Container";
@@ -7,7 +7,10 @@ import { Logo } from "./Logo";
 import { SearchPrompts } from "./SearchPrompts";
 
 export function Navbar() {
-  const { isDarkMode, setIsDarkMode } = usePrompts();
+  const { value: isDarkMode, setValue: setIsDarkMode } = useStorage({
+    storageItem: isDarkModeStorage,
+    defaultValue: false
+  });
 
   const toggleTheme = async () => {
     setIsDarkMode(!isDarkMode);

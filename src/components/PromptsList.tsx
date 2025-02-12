@@ -1,10 +1,10 @@
-import { usePrompts } from "@/lib/contexts/PromptsContext";
+import { usePromptsContext } from "@/lib/contexts/PromptsContext";
 import { useMemo } from "react";
 import { PromptCard } from "./PromptCard";
 
 
 export function PromptsList() {
-  const { devMode, filteredPrompts, prompts, query: searchQuery } = usePrompts();
+  const { devMode, filteredPrompts, prompts, query: searchQuery } = usePromptsContext();
   const totalCount = prompts.length;
   const filterDescription = useMemo(() => {
     const filteredCount = filteredPrompts.length;

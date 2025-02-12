@@ -1,6 +1,6 @@
 import { AI_MODELS } from "@/lib/constants";
 import { Prompt, fetchPrompts } from "@/lib/utils/prompts";
-import { useStorage } from "@/lib/utils/storage";
+import { isDarkModeStorage, isDevModeStorage, selectedModelStorage, useStorage } from "@/lib/utils/storage";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 interface PromptsContextType {
@@ -26,19 +26,19 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
   const [query, setQuery] = useState("");
 
-  const { value: selectedModel, setValue: setSelectedModel, isLoading: isModelLoading } = useStorage({
-    key: 'selectedModel',
-    defaultValue: AI_MODELS[0].id
-  });
-
-  const { value: devMode, setValue: setDevMode } = useStorage({
-    key: 'isDevMode',
-    defaultValue: false
-  });
-
   const { value: isDarkMode, setValue: setIsDarkMode } = useStorage({
-    key: 'isDarkMode',
+    storageItem: isDarkModeStorage,
     defaultValue: false
+  });
+
+  const { value: isDevMode, setValue: setDevMode } = useStorage({
+    storageItem: isDevModeStorage,
+    defaultValue: false
+  });
+
+  const { value: selectedModel, setValue: setSelectedModel } = useStorage({
+    storageItem: selectedModelStorage,
+    defaultValue: AI_MODELS[0].id
   });
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
         prompt.act.toLowerCase().includes(query.toLowerCase()) ||
         prompt.prompt.toLowerCase().includes(query.toLowerCase());
 
-      const matchesDevMode = !devMode || prompt.for_devs === true;
+      const matchesDevMode = !isDevMode || prompt.for_devs === true;
 
       return matchesSearch && matchesDevMode;
     })
@@ -68,10 +68,10 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     prompts,
     filteredPrompts,
-    isLoading: isLoading || isModelLoading,
+    isLoading: isLoading,
     error,
     query,
-    devMode,
+    devMode: isDevMode,
     selectedModel,
     isDarkMode,
     setIsDarkMode,
@@ -82,10 +82,9 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
     prompts,
     filteredPrompts,
     isLoading,
-    isModelLoading,
     error,
     query,
-    devMode,
+    isDevMode,
     selectedModel,
     isDarkMode,
     setIsDarkMode,
@@ -101,7 +100,7 @@ export function PromptsProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function usePrompts() {
+export function usePromptsContext() {
   const context = useContext(PromptsContext);
   if (context === undefined) {
     throw new Error('usePrompts must be used within a PromptsProvider');

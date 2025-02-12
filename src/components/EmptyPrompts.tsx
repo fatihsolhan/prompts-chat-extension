@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { usePrompts } from "@/lib/contexts/PromptsContext";
+import { usePromptsContext } from "@/lib/contexts/PromptsContext";
 import { FileQuestion } from "lucide-react";
 
 
 
 export function EmptyPrompts() {
-  const { setQuery, setDevMode } = usePrompts();
+  const { setQuery, setDevMode } = usePromptsContext();
 
   const handleClearFilters = () => {
     setQuery('');

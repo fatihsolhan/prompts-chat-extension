@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { storage } from 'wxt/storage';
 import { AI_MODELS } from '../constants';
 
 export interface StorageData {
@@ -7,51 +8,59 @@ export interface StorageData {
   isDevMode: boolean;
 }
 
-interface UseStorageOptions<K extends keyof StorageData> {
-  key: K;
-  defaultValue: StorageData[K];
+export const selectedModelStorage = storage.defineItem<string>('sync:selectedModel', {
+  fallback: AI_MODELS[0].id,
+  version: 1,
+});
+
+export const isDarkModeStorage = storage.defineItem<boolean>('local:isDarkMode', {
+  fallback: false,
+  version: 1,
+});
+
+export const isDevModeStorage = storage.defineItem<boolean>('local:isDevMode', {
+  fallback: false,
+  version: 1,
+});
+
+interface UseStorageOptions<T> {
+  storageItem: ReturnType<typeof storage.defineItem<T>>;
+  defaultValue: T;
 }
 
-export function useStorage<K extends keyof StorageData>({
-  key,
-  defaultValue
-}: UseStorageOptions<K>) {
-  const [value, setValue] = useState<StorageData[K]>(defaultValue);
+export function useStorage<T>({ storageItem, defaultValue }: UseStorageOptions<T>) {
+  const [value, setValue] = useState<T>(defaultValue);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-
-    chrome.storage.sync.get(key).then(result => {
+    storageItem.getValue().then((storedValue) => {
       if (isMounted) {
-        setValue(result[key] ?? defaultValue);
+        setValue(storedValue ?? defaultValue);
         setIsLoading(false);
       }
     });
 
-    const handleChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      if (changes[key]) {
-        setValue(changes[key].newValue);
+    const unwatch = storageItem.watch((newValue) => {
+      if (isMounted) {
+        setValue(newValue ?? defaultValue);
       }
-    };
-
-    chrome.storage.sync.onChanged.addListener(handleChange);
+    });
 
     return () => {
       isMounted = false;
-      chrome.storage.sync.onChanged.removeListener(handleChange);
+      unwatch();
     };
-  }, [key, defaultValue]);
+  }, [storageItem, defaultValue]);
 
-  const updateValue = async (newValue: StorageData[K]) => {
+  const updateValue = async (newValue: T) => {
     try {
-      if (key === 'selectedModel' && !AI_MODELS.some(model => model.id === newValue)) {
+      if (storageItem === selectedModelStorage && !AI_MODELS.some(model => model.id === newValue)) {
         throw new Error('Invalid model ID');
       }
-      await chrome.storage.sync.set({ [key]: newValue });
-      setValue(newValue);
+      await storageItem.setValue(newValue);
     } catch (error) {
-      console.error(`Error saving storage value for ${key}:`, error);
+      console.error(`Error saving storage value:`, error);
       throw error;
     }
   };
