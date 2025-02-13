@@ -7,132 +7,121 @@ export interface Prompt {
   contributor?: string;
 }
 
-/**
- * Parses a CSV string into an array of Prompt objects.
- * Handles multi-line content and special characters.
- *
- * @param csv - The CSV string to parse
- * @returns Array of parsed Prompt objects
- */
-export const parseCSV = (csv: string): Prompt[] => {
-  const lines = csv.replace(/\r\n/g, '\n').split('\n');
-  if (!lines.length) return [];
-
-  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-
-  return lines
-    .slice(1)
-    .map(line => {
-      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-      const entry: Partial<Prompt> = {};
-
-      headers.forEach((header, index) => {
-        let value = values[index] || '';
-        value = value.replace(/^"/, '').replace(/"$/, '').trim();
-
-        switch (header) {
-          case 'act':
-            entry.act = value.replace(/`/g, '');
-            break;
-          case 'for_devs':
-            entry.for_devs = value.toUpperCase() === 'TRUE';
-            break;
-          case 'prompt':
-            entry.prompt = value;
-            break;
-        }
-      });
-
-      return entry;
-    })
-    .filter((entry): entry is Prompt =>
-      Boolean(entry.act) &&
-      Boolean(entry.prompt) &&
-      typeof entry.for_devs === 'boolean'
-    );
+export const fetchPrompts = async (): Promise<Prompt[]> => {
+  const readmeResponse = await fetch('https://raw.githubusercontent.com/f/awesome-chatgpt-prompts/main/README.md');
+  const readmeText = await readmeResponse.text();
+  const parsedPrompts = parsePromptsFromReadme(readmeText);
+  return parsedPrompts.sort((a, b) => a.act.localeCompare(b.act));
 };
 
-/**
- * Parses contributor information from the README markdown.
- * Extracts contributor names associated with each prompt title.
- *
- * @param text - The README markdown text
- * @returns Map of prompt titles to contributor names
- */
-export const parseContributorsFromReadme = (text: string): Map<string, string> => {
-  const contributorMap = new Map<string, string>();
-  const tokens = marked.lexer(text);
+export const parsePromptsFromReadme = (markdown: string): Prompt[] => {
+  const tokens = marked.lexer(markdown);
+  const prompts: Prompt[] = [];
 
-  let currentTitle = '';
-  let currentContributor = 'f';
+  let currentPrompt: Partial<Prompt> = {};
+  let isInPromptSection = false;
 
-  const normalizeText = (text: string) => text.replace(/\s+/g, " ").replace(/[\n\r]/g, "").trim();
   const contributorFormats = [
-    /Contributed by: \[([^\]]+)\]/i,
-    /Contributed by \[([^\]]+)\]/i,
-    /Contributed by: @([^\s]+)/i,
-    /Contributed by @([^\s]+)/i,
-    /Contributed by: \[@([^\]]+)\]/i,
-    /Contributed by \[@([^\]]+)\]/i,
+    /Contributed by:\s*\[([^\]]+)\]/i,
+    /Contributed by\s*\[([^\]]+)\]/i,
+    /Contributed by:\s*@([^\s\]]+)/i,
+    /Contributed by\s*@([^\s\]]+)/i,
   ];
 
+  const normalizeTitle = (title: string): string => {
+    // Keep everything exactly as it appears in the source
+    return title;
+  };
+
   tokens.forEach((token) => {
-    if (token.type === 'heading' && token.depth === 2 && token.text.startsWith('Act as')) {
-      if (currentTitle && currentContributor) {
-        contributorMap.set(normalizeText(currentTitle), currentContributor);
-      }
-      currentTitle = token.text;
-      currentContributor = 'f';
+    // Start collecting prompts after the "# Prompts" section
+    if (token.type === 'heading' && token.depth === 1 && token.text === 'Prompts') {
+      isInPromptSection = true;
+      return;
     }
 
-    if (currentTitle && token.type === 'paragraph') {
+    if (!isInPromptSection) return;
+
+    // Parse h2 headers as prompt titles
+    if (token.type === 'heading' && token.depth === 2) {
+      const normalizedText = normalizeTitle(token.text);
+      if (normalizedText.toLowerCase().startsWith('act as')) {
+        if (currentPrompt.act) {
+          // Save previous prompt if exists
+          if (currentPrompt.prompt && typeof currentPrompt.for_devs === 'boolean') {
+            prompts.push(currentPrompt as Prompt);
+          }
+        }
+        currentPrompt = {
+          act: normalizedText,
+          for_devs: false, // Default value
+          contributor: 'f' // Default contributor
+        };
+      }
+    }
+
+    // Parse contributor information
+    if (token.type === 'paragraph' && currentPrompt.act) {
       for (const format of contributorFormats) {
         const match = token.text.match(format);
         if (match) {
-          currentContributor = match[1].replace(/^@/, '');
+          currentPrompt.contributor = match[1].replace(/^@/, '');
           break;
         }
       }
     }
+
+    // Parse prompt content from blockquotes
+    if (token.type === 'blockquote' && currentPrompt.act) {
+      let blockquoteText = '';
+
+      // Safely handle token.tokens
+      if (token.tokens) {
+        blockquoteText = token.tokens
+          .map(t => {
+            if (t.type === 'paragraph') {
+              return t.text;
+            } else if (t.type === 'list') {
+              // Handle list items with proper type
+              const items = t.items as Array<{ text: string; type?: string }>;
+              return items
+                .map(item => item.text)
+                .join('\n');
+            }
+            return '';
+          })
+          .filter(Boolean)
+          .join('\n')
+          .trim();
+      }
+
+      if (blockquoteText) {
+        currentPrompt.prompt = blockquoteText;
+      }
+    }
   });
 
-  if (currentTitle && currentContributor) {
-    contributorMap.set(normalizeText(currentTitle), currentContributor);
+  // Add the last prompt
+  if (currentPrompt.act && currentPrompt.prompt && typeof currentPrompt.for_devs === 'boolean') {
+    prompts.push(currentPrompt as Prompt);
   }
 
-  return contributorMap;
-};
+  // Debug missing prompts
+  const missingPrompts = [
+    "Act As A Chef",
+    "Act As A Financial Analyst",
+    "Act As A Florist",
+    "Act As A Tea-Taster",
+    "Act As An Automobile Mechanic",
+    "Act As An Investment Manager"
+  ];
 
-/**
- * Fetches and parses prompts from the awesome-chatgpt-prompts repository.
- * Combines CSV data with contributor information from the README.
- *
- * @returns Promise resolving to an array of Prompt objects with contributor information
- */
-export const fetchPrompts = async (): Promise<Prompt[]> => {
-  const [csvResponse, contributorMap] = await Promise.all([
-    fetch('https://raw.githubusercontent.com/f/awesome-chatgpt-prompts/main/prompts.csv'),
-    fetch('https://raw.githubusercontent.com/f/awesome-chatgpt-prompts/main/README.md')
-      .then(res => res.text())
-      .then(parseContributorsFromReadme)
-  ]);
-
-  const data = await csvResponse.text();
-  const parsedPrompts = parseCSV(data);
-  parsedPrompts.sort((a, b) => a.act.localeCompare(b.act));
-
-  return parsedPrompts.map(prompt => {
-    const normalizedPromptTitle = prompt.act.replace(/\s+/g, " ").replace(/[\n\r]/g, "").trim();
-    const matchingTitle = Array.from(contributorMap.keys()).find(title => {
-      const normalizedTitle = title.replace(/\s+/g, " ").replace(/[\n\r]/g, "").trim();
-      return normalizedTitle.toLowerCase() === normalizedPromptTitle.toLowerCase() ||
-        normalizedTitle.toLowerCase().includes(normalizedPromptTitle.toLowerCase()) ||
-        normalizedPromptTitle.toLowerCase().includes(normalizedTitle.toLowerCase());
-    });
-
-    return {
-      ...prompt,
-      contributor: matchingTitle ? contributorMap.get(matchingTitle) : 'f'
-    };
+  const foundTitles = prompts.map(p => p.act);
+  console.log('Missing prompts check:');
+  missingPrompts.forEach(title => {
+    const found = foundTitles.some(t => t.toLowerCase() === title.toLowerCase());
+    console.log(`${title}: ${found ? 'Found' : 'Missing'}`);
   });
+
+  return prompts;
 };

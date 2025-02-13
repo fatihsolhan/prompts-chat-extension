@@ -33,6 +33,7 @@ export function SearchPrompts() {
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
                     <Button
+                      data-testid="dev-mode-toggle"
                       variant="outline"
                       size="icon"
                       className={cn('h-7 w-7 rounded-full', 'hover:bg-primary/10 hover:border-primary hover:text-primary', devMode && 'bg-primary/10 border-primary text-primary')}

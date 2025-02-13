@@ -16,7 +16,7 @@ export function PromptsList() {
   }, [filteredPrompts.length, totalCount, searchQuery, devMode]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="prompt-list">
       <div className="px-1">
         <span className="text-sm text-muted-foreground">
           {filterDescription}

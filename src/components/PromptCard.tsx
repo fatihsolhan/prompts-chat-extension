@@ -58,7 +58,7 @@ export function PromptCard({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm hover:shadow-primary">
+    <div data-testid="prompt-card" className="rounded-lg border border-border bg-card text-card-foreground shadow-sm hover:shadow-primary">
       <div className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold">{act}</h3>
@@ -69,6 +69,7 @@ export function PromptCard({
             {prompt}
           </p>
           <Button
+            data-testid="show-more-button"
             onClick={() => setIsOpen(!isOpen)}
             variant="ghost"
             size="sm"
@@ -95,6 +96,7 @@ export function PromptCard({
 
           <div className="flex items-center gap-2">
             <Button
+              data-testid="copy-button"
               variant="outline"
               size="sm"
               onClick={onCopy}
@@ -110,6 +112,7 @@ export function PromptCard({
 
             <div className="inline-flex -space-x-px rounded-lg shadow-sm group">
               <Button
+                data-testid="use-prompt-button"
                 onClick={handleUsePrompt}
                 size="sm"
                 variant="outline"
@@ -133,6 +136,7 @@ export function PromptCard({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
+                    data-testid="select-model-button"
                     variant="outline"
                     size="icon"
                     className="h-8 w-8 rounded-none shadow-none last:rounded-e-lg focus-visible:z-10
@@ -149,7 +153,7 @@ export function PromptCard({
                 <DropdownMenuContent align="end" className="w-[200px]">
                   {AI_MODELS.map((model) => (
                     <DropdownMenuItem key={model.id} onSelect={() => setSelectedModel(model.id)}>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2" data-testid={`select-model-item-${model.id}`}>
                         {model.id === selectedModel ? <Check className="size-4" /> : <img
                           src={model.icon}
                           alt={model.name}
