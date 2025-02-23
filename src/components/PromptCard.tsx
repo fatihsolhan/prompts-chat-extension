@@ -10,8 +10,11 @@ import { AI_MODELS } from "@/lib/constants";
 import { usePrompts } from "@/lib/contexts/PromptsContext";
 import { AIModel } from "@/lib/types";
 import { usePromptInAI } from "@/lib/utils/ai-interactions";
-import { Check, ChevronDown, ChevronUp, Copy } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Copy, Edit2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PromptVariablesDialog } from "@/components/PromptVariablesDialog";
+import { extractVariables, updatePromptPreview, loadStoredVariables } from "@/lib/utils/prompt-variables";
+import { slugify } from '@/lib/utils/string';
 
 interface PromptCardProps {
   act: string;
@@ -29,19 +32,40 @@ export function PromptCard({
   const [isOpen, setIsOpen] = useState(!!searchQuery);
   const { copy } = useCopy();
   const [isCopied, setIsCopied] = useState(false);
+  const [updatedPrompt, setUpdatedPrompt] = useState(updatePromptPreview(prompt));
   const onCopy = () => {
-    copy(prompt).then(() => {
+    // Copy the processed prompt instead of the original
+    copy(updatedPrompt.replace(/<[^>]*>/g, '')).then(() => {
       setIsCopied(true);
       setTimeout(() => {
         setIsCopied(false);
       }, 1000);
-    })
-  }
+    });
+  };
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditingVariables, setIsEditingVariables] = useState(false);
+
+  const variables = extractVariables(prompt);
+  const hasVariables = variables.length > 0;
 
   useEffect(() => {
     setIsOpen(!!searchQuery);
   }, [searchQuery]);
+
+  useEffect(() => {
+    const initialVariables = extractVariables(prompt);
+    if (initialVariables.length > 0) {
+      const stored = loadStoredVariables();
+        const key = slugify(act);
+        const storedData = stored[key];
+        const initialValues = Object.fromEntries(
+          initialVariables.map(v => [v.name, storedData?.values[v.name] || v.default || ''])
+        );
+        const initialPreview = updatePromptPreview(prompt, initialValues);
+        setUpdatedPrompt(initialPreview);
+     
+    }
+  }, [prompt, act]);
 
   const currentModel = AI_MODELS.find(m => m.id === selectedModel) as unknown as AIModel;
   if (!currentModel) return null;
@@ -49,11 +73,14 @@ export function PromptCard({
   const handleUsePrompt = async () => {
     setIsLoading(true);
     try {
-      await usePromptInAI(prompt, currentModel);
+      // Use the processed prompt instead of the original
+      await usePromptInAI(updatedPrompt.replace(/<[^>]*>/g, ''), currentModel);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const displayPrompt = updatePromptPreview(prompt, undefined, hasVariables ? act : undefined);
 
   return (
     <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm hover:shadow-primary">
@@ -63,9 +90,9 @@ export function PromptCard({
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className={`text-sm text-muted-foreground ${!isOpen && 'line-clamp-3'}`}>
-            {prompt}
-          </p>
+          <p className={`text-sm text-muted-foreground ${!isOpen && 'line-clamp-3'}`}
+             dangerouslySetInnerHTML={{ __html: displayPrompt }}
+          />
           <Button
             onClick={() => setIsOpen(!isOpen)}
             variant="ghost"
@@ -92,6 +119,17 @@ export function PromptCard({
           </a>
 
           <div className="flex items-center gap-2">
+            {hasVariables && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditingVariables(true)}
+                className="h-8 text-xs hover:bg-primary/10 hover:border-primary hover:text-primary gap-1"
+              >
+                <Edit2 className="h-3 w-3" />
+                <span className="hidden sm:block">Edit Variables</span>
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -163,6 +201,14 @@ export function PromptCard({
           </div>
         </div>
       </div>
+
+      <PromptVariablesDialog
+        isOpen={isEditingVariables}
+        onClose={() => setIsEditingVariables(false)}
+        prompt={prompt}
+        act={act}
+        variables={variables}
+      />
     </div>
   );
 }
