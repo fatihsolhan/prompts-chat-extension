@@ -12,10 +12,12 @@ const [major, minor, patch, label = '0'] = version
   .split(/[.-]/)
 
 const getAllModelUrls = () => {
-  const urls = AI_MODELS.map(model => {
-    const baseUrlObj = new URL(model.baseUrl);
-    return `${baseUrlObj.protocol}//${baseUrlObj.hostname}/*`;
-  });
+  const urls = AI_MODELS
+    .filter(model => model.baseUrl.startsWith('http'))  // Only http/https URLs
+    .map(model => {
+      const baseUrlObj = new URL(model.baseUrl);
+      return `${baseUrlObj.protocol}//${baseUrlObj.hostname}/*`;
+    });
   return [...new Set(urls)];
 };
 
@@ -63,7 +65,7 @@ export default defineManifest(async (env) => ({
     service_worker: 'src/background.ts',
     type: 'module',
   },
-  host_permissions: modelUrls,
+  host_permissions: [...modelUrls, 'https://prompts.chat/*'],
   web_accessible_resources: [
     {
       matches: ['<all_urls>'],

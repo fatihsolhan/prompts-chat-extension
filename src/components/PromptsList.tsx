@@ -1,38 +1,83 @@
-import { usePrompts } from "@/lib/contexts/PromptsContext";
-import { useMemo } from "react";
-import { PromptCard } from "./PromptCard";
+import { usePrompts } from '@/lib/contexts/PromptsContext';
+import { Prompt } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useRef, useState } from 'react';
+import { PromptCard } from './PromptCard';
+import { PromptDetailDialog } from './PromptDetailDialog';
 
+const ESTIMATED_CARD_HEIGHT = 180;
 
-export function PromptsList() {
-  const { devMode, filteredPrompts, prompts, query: searchQuery } = usePrompts();
-  const totalCount = prompts.length;
-  const filterDescription = useMemo(() => {
-    const filteredCount = filteredPrompts.length;
+export function PromptsList({ className }: { className?: string }) {
+  const { filteredPrompts } = usePrompts();
 
-    if (filteredCount === totalCount) {
-      return `${filteredCount} prompts`;
-    }
-    return `Showing ${filteredCount} of ${totalCount} prompts${devMode ? ' (Developer Mode)' : ''}`;
-  }, [filteredPrompts.length, totalCount, searchQuery, devMode]);
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const virtualizer = useVirtualizer({
+    count: filteredPrompts.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ESTIMATED_CARD_HEIGHT,
+    overscan: 3,
+    gap: 24,
+  });
+
+  const virtualItems = virtualizer.getVirtualItems();
+
+  const handlePromptClick = (prompt: Prompt) => {
+    setSelectedPrompt(prompt);
+    setDialogOpen(true);
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="px-1">
-        <span className="text-sm text-muted-foreground">
-          {filterDescription}
-        </span>
+    <>
+      <div
+        ref={parentRef}
+        className={cn("overflow-auto", className)}
+        style={{
+          height: 'calc(100vh - 180px)',
+          contain: 'strict',
+        }}
+      >
+        <div
+          style={{
+            height: `${virtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {virtualItems.map((virtualItem) => {
+            const prompt = filteredPrompts[virtualItem.index];
+            return (
+              <div
+                key={prompt.id}
+                data-index={virtualItem.index}
+                ref={virtualizer.measureElement}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualItem.start}px)`,
+                }}
+              >
+                <PromptCard
+                  prompt={prompt}
+                  onClick={() => handlePromptClick(prompt)}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="space-y-3">
-        {filteredPrompts.map((prompt, index) => (
-          <PromptCard
-            key={`${prompt.act}-${index}`}
-            act={prompt.act}
-            prompt={prompt.prompt}
-            contributor={prompt.contributor || '@f'}
-          />
-        ))}
-      </div>
-    </div>
+      <PromptDetailDialog
+        prompt={selectedPrompt}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
+    </>
   );
 }

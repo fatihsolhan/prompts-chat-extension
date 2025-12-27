@@ -1,13 +1,19 @@
-import { AIModel } from "../types";
+import { Platform } from "../constants";
 
-export async function usePromptInAI(prompt: string, model: AIModel) {
-  if (!model) return;
+export async function usePromptInAI(prompt: string, platform: Platform): Promise<boolean> {
+  if (!platform) return false;
 
-  await chrome.runtime.sendMessage({
-    action: 'usePrompt',
-    data: {
-      modelId: model.id,
-      prompt
-    }
-  });
+  try {
+    const response = await chrome.runtime.sendMessage({
+      action: 'usePrompt',
+      data: {
+        modelId: platform.id,
+        prompt
+      }
+    });
+    return response?.success ?? false;
+  } catch (error) {
+    console.error('Error using prompt in AI:', error);
+    return false;
+  }
 }
