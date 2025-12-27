@@ -1,25 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AI_MODELS } from '../constants';
 
-export interface StorageData {
-  selectedModel: string;
-  isDarkMode: boolean;
-  isDevMode: boolean;
-}
-
-interface UseStorageOptions<K extends keyof StorageData> {
-  key: K;
-  defaultValue: StorageData[K];
-}
-
-export function useStorage<K extends keyof StorageData>({
+export function useStorage<T>({
   key,
   defaultValue
-}: UseStorageOptions<K>) {
-  const [value, setValue] = useState<StorageData[K]>(defaultValue);
+}: {
+  key: string;
+  defaultValue: T;
+}) {
+  const [value, setValue] = useState<T>(defaultValue);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!chrome?.storage) {
+      setIsLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     chrome.storage.sync.get(key).then(result => {
@@ -43,18 +40,22 @@ export function useStorage<K extends keyof StorageData>({
     };
   }, [key, defaultValue]);
 
-  const updateValue = async (newValue: StorageData[K]) => {
-    try {
-      if (key === 'selectedModel' && !AI_MODELS.some(model => model.id === newValue)) {
+  const updateValue = useCallback(async (newValueOrUpdater: T | ((prev: T) => T)) => {
+    const newValue = typeof newValueOrUpdater === 'function'
+      ? (newValueOrUpdater as (prev: T) => T)(value)
+      : newValueOrUpdater;
+
+    if (key === 'selectedModel' && typeof newValue === 'string') {
+      if (!AI_MODELS.some(model => model.id === newValue)) {
         throw new Error('Invalid model ID');
       }
-      await chrome.storage.sync.set({ [key]: newValue });
-      setValue(newValue);
-    } catch (error) {
-      console.error(`Error saving storage value for ${key}:`, error);
-      throw error;
     }
-  };
+
+    if (chrome?.storage) {
+      await chrome.storage.sync.set({ [key]: newValue });
+    }
+    setValue(newValue);
+  }, [key, value]);
 
   return { value, isLoading, setValue: updateValue };
 }

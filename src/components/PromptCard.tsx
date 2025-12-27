@@ -1,168 +1,142 @@
-import { Button } from "@/components/ui/button";
+import { useCopy } from '@/hooks/useCopy';
+import { usePrompts } from '@/lib/contexts/PromptsContext';
+import { Prompt } from '@/lib/types';
+import { hasTemplateVariables } from '@/lib/utils/prompts';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { useCopy } from "@/hooks/useCopy";
-import { AI_MODELS } from "@/lib/constants";
-import { usePrompts } from "@/lib/contexts/PromptsContext";
-import { AIModel } from "@/lib/types";
-import { usePromptInAI } from "@/lib/utils/ai-interactions";
-import { Check, ChevronDown, ChevronUp, Copy } from "lucide-react";
-import { useEffect, useState } from "react";
+  ArrowBigUp,
+  Check,
+  Copy,
+  Heart,
+  Variable
+} from 'lucide-react';
+import { memo, useState } from 'react';
+import { HighlightedContent } from './HighlightedContent';
+import { RunPromptButton } from './RunPromptButton';
+import { TypeBadge } from './TypeBadge';
+import { Button } from './ui/button';
 
 interface PromptCardProps {
-  act: string;
-  prompt: string;
-  contributor: string;
-  searchQuery?: string;
+  prompt: Prompt;
+  onClick: () => void;
 }
 
-export function PromptCard({
-  act,
-  prompt,
-  contributor,
-}: PromptCardProps) {
-  const { selectedModel, setSelectedModel, query: searchQuery } = usePrompts();
-  const [isOpen, setIsOpen] = useState(!!searchQuery);
+export const PromptCard = memo(function PromptCard({ prompt, onClick }: PromptCardProps) {
+  const { toggleFavorite, isFavorite, setSelectedTags } = usePrompts();
   const { copy } = useCopy();
   const [isCopied, setIsCopied] = useState(false);
-  const onCopy = () => {
-    copy(prompt).then(() => {
+
+  const favorite = isFavorite(prompt.id);
+  const hasVars = hasTemplateVariables(prompt.content);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    copy(prompt.content).then(() => {
       setIsCopied(true);
-      setTimeout(() => {
-        setIsCopied(false);
-      }, 1000);
-    })
-  }
-  const [isLoading, setIsLoading] = useState(false);
+      setTimeout(() => setIsCopied(false), 1000);
+    });
+  };
 
-  useEffect(() => {
-    setIsOpen(!!searchQuery);
-  }, [searchQuery]);
-
-  const currentModel = AI_MODELS.find(m => m.id === selectedModel) as unknown as AIModel;
-  if (!currentModel) return null;
-
-  const handleUsePrompt = async () => {
-    setIsLoading(true);
-    try {
-      await usePromptInAI(prompt, currentModel);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(prompt.id);
   };
 
   return (
-    <div className="rounded-lg border border-border bg-card text-card-foreground shadow-sm hover:shadow-primary">
-      <div className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-bold">{act}</h3>
+    <div
+      onClick={onClick}
+      className="group rounded-xl border border-border bg-card p-4 cursor-pointer hover:border-primary/30 transition-all"
+    >
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium leading-snug line-clamp-1 group-hover:underline">
+            {prompt.title}
+          </h3>
+          {prompt.description && (
+            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+              {prompt.description}
+            </p>
+          )}
         </div>
-
-        <div className="flex flex-col gap-2">
-          <p className={`text-sm text-muted-foreground ${!isOpen && 'line-clamp-3'}`}>
-            {prompt}
-          </p>
-          <Button
-            onClick={() => setIsOpen(!isOpen)}
-            variant="ghost"
-            size="sm"
-            className="mt-1 h-6 px-2 text-xs hover:bg-transparent text-muted-foreground hover:text-foreground ml-auto gap-1"
-          >
-            {isOpen ? (
-              <ChevronUp size={16} />
-            ) : (
-              <ChevronDown size={16} />
-            )}
-            <span>{isOpen ? 'Show less' : 'Show more'}</span>
-          </Button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <TypeBadge type={prompt.type} className="text-[10px]" />
+          {hasVars && (
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <Variable className="h-2.5 w-2.5" />
+              Vars
+            </span>
+          )}
         </div>
+      </div>
 
-        <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t">
-          <a
-            href={`https://github.com/${contributor}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-primary hover:underline"
-          >
-            @{contributor}
-          </a>
+      <div className="mb-3">
+        <HighlightedContent
+          content={prompt.content}
+          structuredFormat={prompt.structuredFormat}
+          maxLines={7}
+        />
+      </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onCopy}
-              className="h-8 text-xs hover:bg-primary/10 hover:border-primary hover:text-primary gap-1"
+      {prompt.tags && prompt.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {prompt.tags.slice(0, 3).map(tag => (
+            <button
+              key={tag.name}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedTags([tag.name]);
+              }}
+              className="px-2 py-0.5 text-[10px] rounded-full hover:opacity-80 transition-opacity"
+              style={{
+                backgroundColor: `${tag.color}15`,
+                color: tag.color,
+              }}
             >
-              {isCopied ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
-              <span className="hidden sm:block">Copy</span>
-            </Button>
+              {tag.name}
+            </button>
+          ))}
+          {prompt.tags.length > 3 && (
+            <span className="px-2 py-0.5 text-[10px] rounded-full bg-muted text-muted-foreground">
+              +{prompt.tags.length - 3}
+            </span>
+          )}
+        </div>
+      )}
 
-            <div className="inline-flex -space-x-px rounded-lg shadow-sm group">
-              <Button
-                onClick={handleUsePrompt}
-                size="sm"
-                variant="outline"
-                className="h-8 text-xs rounded-none shadow-none first:rounded-s-lg focus-visible:z-10 transition-colors-disabled
-                hover:bg-primary/10
-                hover:text-primary group-hover:border-primary
-                "
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="h-4 w-4 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                ) : (
-                  <img
-                    src={currentModel.icon}
-                    alt={currentModel.name}
-                    className={`size-4 ${['github-copilot', 'chatgpt'].includes(currentModel.id) ? 'dark:invert' : ''}`}
-                  />
-                )}
-                Use in {currentModel.name}
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 rounded-none shadow-none last:rounded-e-lg focus-visible:z-10
-                    hover:bg-primary/10
-                    hover:text-primary group-hover:border-primary
-                    !ring-0
-                    data-[state=open]:bg-primary/10 data-[state=open]:text-primary data-[state=open]:border-primary
-                    "
-                    disabled={isLoading}
-                  >
-                    <ChevronDown className="h-4 w-4 opacity-60" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[200px]">
-                  {AI_MODELS.map((model) => (
-                    <DropdownMenuItem key={model.id} onSelect={() => setSelectedModel(model.id)}>
-                      <div className="flex items-center gap-2">
-                        {model.id === selectedModel ? <Check className="size-4" /> : <img
-                          src={model.icon}
-                          alt={model.name}
-                          className={`size-4 ${['github-copilot', 'chatgpt'].includes(model.id) ? 'dark:invert' : ''}`}
-                        />}
-                        <span className="text-sm">{model.name}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span className="hover:text-foreground transition-colors">
+          @{prompt.author}
+        </span>
+
+        <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
+          {prompt.votes > 0 && (
+            <span className="flex items-center gap-0.5">
+              <ArrowBigUp />
+              {prompt.votes}
+            </span>
+          )}
+          <RunPromptButton
+            promptContent={prompt.content}
+            size="sm"
+            className="h-7"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleCopy}
+          >
+            {isCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`size-6 ${favorite ? '!text-destructive' : ''}`}
+            onClick={handleFavorite}
+          >
+            <Heart className={`size-3 ${favorite ? 'fill-current' : ''}`} />
+          </Button>
         </div>
       </div>
     </div>
   );
-}
+});
