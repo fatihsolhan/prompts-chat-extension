@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.0.0...v1.1.0) (2025-12-27)
+
+### ✨ Features
+
+* add filtering, variable editing, and multi-platform support ([#4](https://github.com/fatihsolhan/prompts-chat-extension/issues/4)) ([d0cf5df](https://github.com/fatihsolhan/prompts-chat-extension/commit/d0cf5dfa552e371d7181cadddc816bfca243b36b)), closes [#3](https://github.com/fatihsolhan/prompts-chat-extension/issues/3) [#2](https://github.com/fatihsolhan/prompts-chat-extension/issues/2)
+
 ## 1.0.0 (2025-02-11)
 
 ### 🔧 Maintenance
