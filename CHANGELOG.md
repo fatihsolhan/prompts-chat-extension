@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.1.0...v1.1.1) (2025-12-27)
+
+### 🔧 Maintenance
+
+* bump version to 1.2.0 ([70d4dd3](https://github.com/fatihsolhan/prompts-chat-extension/commit/70d4dd3b9c2aa1c8b1671f55d969925c8928b635))
+
 ## [1.1.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.0.0...v1.1.0) (2025-12-27)
 
 ### ✨ Features
