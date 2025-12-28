@@ -44,8 +44,14 @@ yarn dev
 yarn build
 ```
 
-## Privacy
-This extension does not collect any personal information. Read our full [Privacy Policy](PRIVACY.md) for more details.
+## Privacy & Analytics
+
+This extension uses anonymous analytics to understand feature usage and improve the experience. We track:
+- Which features are used (prompt views, copies, runs)
+- Which AI platforms are popular
+- No personal information or prompt content is ever collected
+
+Read our full [Privacy Policy](PRIVACY.md) for more details.
 
 ## Contributing
 

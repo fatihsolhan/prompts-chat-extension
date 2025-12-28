@@ -6,6 +6,7 @@
  */
 
 import { useCopy } from '@/hooks/useCopy';
+import { analytics } from '@/lib/analytics';
 import { CHAT_PLATFORMS, CODE_PLATFORMS, Platform, buildPlatformUrl } from '@/lib/constants';
 import { usePrompts } from '@/lib/contexts/PromptsContext';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,8 @@ import {
 } from './ui/dropdown-menu';
 
 interface RunPromptButtonProps {
+  /** The prompt ID for analytics */
+  promptId: string;
   /** The prompt content to run */
   promptContent: string;
   /** Custom trigger element - if not provided, uses default button */
@@ -42,6 +45,7 @@ interface RunPromptButtonProps {
 }
 
 export function RunPromptButton({
+  promptId,
   promptContent,
   trigger,
   size = 'sm',
@@ -58,6 +62,7 @@ export function RunPromptButton({
 
   const handleRunOnPlatform = async (platform: Platform) => {
     setIsLoading(true);
+    analytics.promptRun(promptId, platform.id);
 
     try {
       if (platform.id !== 'copy') {

@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useCopy } from '@/hooks/useCopy';
+import { analytics } from '@/lib/analytics';
 import { usePrompts } from '@/lib/contexts/PromptsContext';
 import { Prompt, TemplateVariable } from '@/lib/types';
 import {
@@ -62,6 +63,12 @@ export function PromptDetailDialog({ prompt, open, onOpenChange }: PromptDetailD
     }
   }, [open]);
 
+  useEffect(() => {
+    if (open && prompt) {
+      analytics.promptViewed(prompt.id, prompt.type);
+    }
+  }, [open, prompt]);
+
   if (!prompt) return null;
 
   const finalContent = hasVars
@@ -71,6 +78,7 @@ export function PromptDetailDialog({ prompt, open, onOpenChange }: PromptDetailD
   const onCopy = () => {
     copy(finalContent).then(() => {
       setIsCopied(true);
+      analytics.promptCopied(prompt.id, prompt.category);
       setTimeout(() => setIsCopied(false), 2000);
     });
   };
@@ -175,6 +183,7 @@ export function PromptDetailDialog({ prompt, open, onOpenChange }: PromptDetailD
             </div>
 
             <RunPromptButton
+              promptId={prompt.id}
               promptContent={finalContent}
               onRun={() => onOpenChange(false)}
             />
