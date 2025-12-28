@@ -4,7 +4,9 @@ import { LoadingPrompts } from '@/components/LoadingPrompts';
 import { Navbar } from '@/components/Navbar';
 import { PromptsList } from '@/components/PromptsList';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { analytics } from '@/lib/analytics';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { PromptsProvider, usePrompts } from './lib/contexts/PromptsContext';
 
 const queryClient = new QueryClient({
@@ -18,6 +20,10 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { filteredPrompts, isLoading } = usePrompts();
+
+  useEffect(() => {
+    analytics.extensionOpened();
+  }, []);
 
   return (
     <div className="min-h-screen min-w-[600px] bg-muted dark:bg-muted/30">

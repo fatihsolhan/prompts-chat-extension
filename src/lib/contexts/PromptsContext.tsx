@@ -1,3 +1,4 @@
+import { analytics } from '@/lib/analytics';
 import { AI_MODELS } from '@/lib/constants';
 import { Category, Prompt, Tag } from '@/lib/types';
 import { useStorage } from '@/lib/utils/storage';
@@ -143,12 +144,14 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
   }, [prompts, query, activeTab, sortBy, favorites, selectedCategory, selectedTags, selectedType]);
 
   const toggleFavorite = useCallback((promptId: string) => {
+    const isCurrentlyFavorite = favorites.includes(promptId);
+    analytics.promptFavorited(promptId, isCurrentlyFavorite ? 'remove' : 'add');
     setFavorites(prev =>
       prev.includes(promptId)
         ? prev.filter(id => id !== promptId)
         : [...prev, promptId]
     );
-  }, [setFavorites]);
+  }, [favorites, setFavorites]);
 
   const isFavorite = useCallback((promptId: string) => {
     return favorites.includes(promptId);

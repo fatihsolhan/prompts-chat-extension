@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,16 +29,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build
-        run: yarn build
-
-      - name: Zip Extension
-        run: |
-          cd dist
-          zip -r ../extension.zip *
-          cd ..
-
       - name: Semantic Release
+        id: semantic
         uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -45,10 +38,43 @@ jobs:
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
+            @semantic-release/npm
             conventional-changelog-conventionalcommits
 
+      - name: Checkout updated code
+        if: steps.semantic.outputs.new_release_published == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install dependencies (after release)
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: yarn build
+
+      - name: Zip Extension
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          cd dist
+          zip -r ../extension.zip *
+          cd ..
+
+      - name: Upload Extension to GitHub Release
+        if: steps.semantic.outputs.new_release_published == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.semantic.outputs.new_release_version }}
+          files: extension.zip
+          name: v${{ steps.semantic.outputs.new_release_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload to Chrome Web Store
-        if: success()
+        if: steps.semantic.outputs.new_release_published == 'true'
         uses: mnao305/chrome-extension-upload@v4.0.1
         with:
           file-path: extension.zip

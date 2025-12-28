@@ -115,6 +115,7 @@ export const PromptCard = memo(function PromptCard({ prompt, onClick }: PromptCa
             </span>
           )}
           <RunPromptButton
+            promptId={prompt.id}
             promptContent={prompt.content}
             size="sm"
             className="h-7"
