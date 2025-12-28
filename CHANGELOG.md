@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.1.1...v1.2.0) (2025-12-28)
+
+### ✨ Features
+
+* add GA4 analytics tracking and improve CI workflow ([#5](https://github.com/fatihsolhan/prompts-chat-extension/issues/5)) ([4e3a809](https://github.com/fatihsolhan/prompts-chat-extension/commit/4e3a80948210eb28d6ff62a80da9533de0d60333))
+
 ## [1.1.1](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.1.0...v1.1.1) (2025-12-27)
 
 ### 🔧 Maintenance
