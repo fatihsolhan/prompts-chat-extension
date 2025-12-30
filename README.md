@@ -8,13 +8,14 @@ A browser extension that enhances [prompts.chat](https://prompts.chat) with addi
 
 ## Features
 
-- ⚡️ One-Click Prompt Insertion: Instantly add prompts to your current chat or start a new conversation
-- 🤖 Multi-Platform Support: Works with ChatGPT, Claude, GitHub Copilot, Google Gemini, Perplexity, and Mistral
-- 🔍 Enhanced search capabilities
-- 🌓 Dark/Light mode support
-- 📋 Quick copy functionality
-- 🎨 Modern and clean UI
-- ⚡️ Performance optimizations
+- ⚡️ **One-Click Run**: Instantly run prompts on ChatGPT, Claude, Gemini, GitHub Copilot, and more
+- 🔍 **Smart Filtering**: Filter by category, tags, and prompt type (Text, Image, Audio, Video)
+- 📝 **Variable Customization**: Edit prompt variables and preview changes in real-time
+- ❤️ **Favorites**: Save your go-to prompts for quick access
+- 📌 **Side Panel Mode**: Keep prompts visible while you browse
+- 🌓 **Dark/Light Mode**: Easy on the eyes, day or night
+- 🎨 **Syntax Highlighting**: Beautiful JSON/YAML preview for structured prompts
+- 📋 **Quick Copy**: One-click copy to clipboard
 
 ## Installation
 
