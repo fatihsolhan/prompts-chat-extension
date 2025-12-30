@@ -39,7 +39,7 @@ export default defineManifest(async (env) => ({
     "128": "prompts-chat-logo-128.png"
   },
   action: {
-    default_popup: 'index.html',
+    default_popup: 'index.html?context=popup',
     default_icon: {
       "16": "prompts-chat-logo-16.png",
       "48": "prompts-chat-logo-48.png",
@@ -47,7 +47,7 @@ export default defineManifest(async (env) => ({
     }
   },
   side_panel: {
-    default_path: 'index.html',
+    default_path: 'index.html?context=sidepanel',
   },
   permissions: [
     'storage',
