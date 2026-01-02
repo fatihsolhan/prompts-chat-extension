@@ -12,7 +12,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'chatgpt',
     name: 'ChatGPT',
-    icon: '/openai-icon.svg',
+    icon: '/brand-logos/openai-icon.svg',
     baseUrl: 'https://chatgpt.com',
     inputSelector: '#prompt-textarea',
     supportsQuerystring: true,
@@ -20,7 +20,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'claude',
     name: 'Claude',
-    icon: '/claude-ai-icon.svg',
+    icon: '/brand-logos/claude-ai-icon.svg',
     baseUrl: 'https://claude.ai/new',
     inputSelector: '[contenteditable="true"]',
     supportsQuerystring: true,
@@ -28,7 +28,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'gemini',
     name: 'Gemini',
-    icon: '/google-gemini-icon.svg',
+    icon: '/brand-logos/google-gemini-icon.svg',
     baseUrl: 'https://gemini.google.com/app',
     inputSelector: 'rich-textarea p',
     supportsQuerystring: false,
@@ -36,7 +36,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'copilot',
     name: 'Microsoft Copilot',
-    icon: '/copilot-color.svg',
+    icon: '/brand-logos/copilot-color.svg',
     baseUrl: 'https://copilot.microsoft.com',
     inputSelector: '#userInput',
     supportsQuerystring: false,
@@ -44,7 +44,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'deepseek',
     name: 'DeepSeek',
-    icon: '/deepseek-color.svg',
+    icon: '/brand-logos/deepseek-color.svg',
     baseUrl: 'https://chat.deepseek.com',
     inputSelector: 'textarea',
     supportsQuerystring: false,
@@ -52,7 +52,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'grok',
     name: 'Grok',
-    icon: '/grok.svg',
+    icon: '/brand-logos/grok.svg',
     baseUrl: 'https://grok.com/chat',
     inputSelector: 'textarea',
     supportsQuerystring: true,
@@ -60,7 +60,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'perplexity',
     name: 'Perplexity',
-    icon: '/perplexity-color.svg',
+    icon: '/brand-logos/perplexity-color.svg',
     baseUrl: 'https://www.perplexity.ai',
     inputSelector: 'textarea',
     supportsQuerystring: true,
@@ -68,7 +68,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'mistral',
     name: 'Le Chat',
-    icon: '/mistral-ai-icon.svg',
+    icon: '/brand-logos/mistral-ai-icon.svg',
     baseUrl: 'https://chat.mistral.ai/chat',
     inputSelector: 'textarea',
     supportsQuerystring: true,
@@ -76,7 +76,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'huggingface',
     name: 'HuggingChat',
-    icon: '/huggingface-color.svg',
+    icon: '/brand-logos/huggingface-color.svg',
     baseUrl: 'https://huggingface.co/chat',
     inputSelector: 'textarea',
     supportsQuerystring: true,
@@ -84,7 +84,7 @@ export const CHAT_PLATFORMS: Platform[] = [
   {
     id: 'poe',
     name: 'Poe',
-    icon: '/poe-color.svg',
+    icon: '/brand-logos/poe-color.svg',
     baseUrl: 'https://poe.com',
     inputSelector: 'textarea',
     supportsQuerystring: false,
@@ -95,7 +95,7 @@ export const CODE_PLATFORMS: Platform[] = [
   {
     id: 'cursor',
     name: 'Cursor',
-    icon: '/cursor.svg',
+    icon: '/brand-logos/cursor.svg',
     baseUrl: 'cursor://anysphere.cursor-deeplink/prompt',
     inputSelector: '',
     isDeeplink: true,
@@ -104,7 +104,7 @@ export const CODE_PLATFORMS: Platform[] = [
   {
     id: 'windsurf',
     name: 'Windsurf',
-    icon: '/windsurf.svg',
+    icon: '/brand-logos/windsurf.svg',
     baseUrl: 'windsurf://',
     inputSelector: '',
     isDeeplink: true,
@@ -113,7 +113,7 @@ export const CODE_PLATFORMS: Platform[] = [
   {
     id: 'vscode',
     name: 'VS Code',
-    icon: '/vscode.svg',
+    icon: '/brand-logos/vscode.svg',
     baseUrl: 'vscode://',
     inputSelector: '',
     isDeeplink: true,
@@ -122,7 +122,7 @@ export const CODE_PLATFORMS: Platform[] = [
   {
     id: 'github-copilot',
     name: 'GitHub Copilot',
-    icon: '/github-copilot-icon.svg',
+    icon: '/brand-logos/github-copilot-icon.svg',
     baseUrl: 'https://github.com/copilot',
     inputSelector: 'textarea',
     supportsQuerystring: true,
@@ -130,7 +130,7 @@ export const CODE_PLATFORMS: Platform[] = [
   {
     id: 'bolt',
     name: 'Bolt',
-    icon: '/bolt.svg',
+    icon: '/brand-logos/bolt.svg',
     baseUrl: 'https://bolt.new',
     inputSelector: 'textarea',
     supportsQuerystring: true,
@@ -138,7 +138,7 @@ export const CODE_PLATFORMS: Platform[] = [
   {
     id: 'lovable',
     name: 'Lovable',
-    icon: '/lovable-color.svg',
+    icon: '/brand-logos/lovable-color.svg',
     baseUrl: 'https://lovable.dev',
     inputSelector: 'textarea',
     supportsQuerystring: true,
@@ -146,7 +146,7 @@ export const CODE_PLATFORMS: Platform[] = [
   {
     id: 'v0',
     name: 'v0',
-    icon: '/v0.svg',
+    icon: '/brand-logos/v0.svg',
     baseUrl: 'https://v0.dev/chat',
     inputSelector: 'textarea',
     supportsQuerystring: true,

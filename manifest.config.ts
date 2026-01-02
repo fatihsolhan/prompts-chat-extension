@@ -34,16 +34,16 @@ export default defineManifest(async (env) => ({
   // semver is OK in "version_name"
   version_name: version,
   icons: {
-    "16": "prompts-chat-logo-16.png",
-    "48": "prompts-chat-logo-48.png",
-    "128": "prompts-chat-logo-128.png"
+    "16": "logos/logo-16.png",
+    "48": "logos/logo-48.png",
+    "128": "logos/logo-128.png"
   },
   action: {
     default_popup: 'popup.html',
     default_icon: {
-      "16": "prompts-chat-logo-16.png",
-      "48": "prompts-chat-logo-48.png",
-      "128": "prompts-chat-logo-128.png"
+      "16": "logos/logo-16.png",
+      "48": "logos/logo-48.png",
+      "128": "logos/logo-128.png"
     }
   },
   side_panel: {

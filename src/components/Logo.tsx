@@ -25,9 +25,14 @@ export function Logo({ size = "md", showText = true, className }: LogoProps) {
   return (
     <div className={cn("flex items-center space-x-2", className)}>
       <img
-        src="/prompts-chat-logo-48.png"
+        src="/logos/logo-light.svg"
         alt="prompts.chat logo"
-        className={SIZES[size].container}
+        className={cn(SIZES[size].container, "dark:hidden")}
+      />
+      <img
+        src="/logos/logo-dark.svg"
+        alt="prompts.chat logo"
+        className={cn(SIZES[size].container, "hidden dark:block")}
       />
       {showText && (
         <h1
