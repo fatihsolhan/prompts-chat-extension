@@ -70,7 +70,7 @@ Check our [releases page](https://github.com/fatihsolhan/prompts-chat-extension/
 
 ### Adding New Prompts
 
-If you'd like to add new prompts, please submit them to the [original repository](https://github.com/f/awesome-chatgpt-prompts). Once merged, they will automatically become available in this extension.
+Want to add a new prompt? Submit it directly on [prompts.chat](https://prompts.chat/prompts/new) and it will automatically become available in this extension.
 
 ## Credits
 
