@@ -4,6 +4,7 @@ import { LoadingPrompts } from '@/components/LoadingPrompts';
 import { Navbar } from '@/components/Navbar';
 import { PromptsList } from '@/components/PromptsList';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { SidePanelNotice } from '@/components/SidePanelNotice';
 import { analytics } from '@/lib/analytics';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -27,6 +28,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen min-w-[600px] bg-muted dark:bg-muted/30">
+      <SidePanelNotice />
       <Navbar />
       <Container>
         <main className="mx-auto">
