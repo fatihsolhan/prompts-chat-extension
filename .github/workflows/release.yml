@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Verify build
+        run: yarn build
+
       - name: Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v4
@@ -52,7 +55,7 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         run: yarn install --frozen-lockfile
 
-      - name: Build
+      - name: Build for release
         if: steps.semantic.outputs.new_release_published == 'true'
         run: yarn build
 

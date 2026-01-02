@@ -7,8 +7,8 @@ export function SidePanelNotice() {
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const context = urlParams.get('context');
+    const rootElement = document.getElementById('root');
+    const context = rootElement?.dataset.context;
     setIsPopup(context === 'popup');
 
     chrome.storage.local.get('sidepanel_notice_dismissed').then((result) => {
