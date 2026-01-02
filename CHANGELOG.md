@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.3.0...v1.3.1) (2026-01-02)
+
+### 🐛 Bug Fixes
+
+* add build verification before release and fix popup context detection ([#7](https://github.com/fatihsolhan/prompts-chat-extension/issues/7)) ([67f3833](https://github.com/fatihsolhan/prompts-chat-extension/commit/67f3833351fa3c5d7ca6c50be9fba07bb697640e))
+
 ## [1.3.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.2.0...v1.3.0) (2026-01-02)
 
 ### ✨ Features
