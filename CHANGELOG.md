@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.2.0...v1.3.0) (2026-01-02)
+
+### ✨ Features
+
+* add sidepanel notice for popup users ([#6](https://github.com/fatihsolhan/prompts-chat-extension/issues/6)) ([031cee8](https://github.com/fatihsolhan/prompts-chat-extension/commit/031cee8763df4bbd79680ac8b2fb50d52c99c1e4))
+
 ## [1.2.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.1.1...v1.2.0) (2025-12-28)
 
 ### ✨ Features
