@@ -1,3 +1,9 @@
+## [1.3.2](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.3.1...v1.3.2) (2026-01-04)
+
+### 🔧 Maintenance
+
+* update branding to match prompts.chat ([#8](https://github.com/fatihsolhan/prompts-chat-extension/issues/8)) ([dbd7c48](https://github.com/fatihsolhan/prompts-chat-extension/commit/dbd7c488c364153c1fc0c80156de76cdea064f78))
+
 ## [1.3.1](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.3.0...v1.3.1) (2026-01-02)
 
 ### 🐛 Bug Fixes
