@@ -20,7 +20,7 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
             <Logo size="md" />
           </DialogTitle>
           <DialogDescription className="text-sm text-left">
-            A browser extension that enhances prompts.chat with additional features and improvements.
+            A Chrome extension for prompts.chat that lets you browse, filter, and run prompts directly in your favorite AI tools.
           </DialogDescription>
         </DialogHeader>
         <div className="py-2 space-y-4 overflow-y-auto px-4">
@@ -74,15 +74,14 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
             <h3 className="text-lg font-semibold mb-1">Add Your Prompt</h3>
             <div className="rounded-lg border p-4 bg-card">
               <p className="text-sm text-muted-foreground mb-4">
-                Have a great prompt to share? Add it to the original repository to make it available for everyone.
+                Have a great prompt to share? Submit it to prompts.chat to make it available for everyone.
               </p>
               <a
-                href="https://github.com/f/awesome-chatgpt-prompts/pulls"
+                href="https://prompts.chat/prompts/new"
                 target="_blank"
                 rel="noreferrer"
               >
                 <Button variant="outline" size="sm" className="gap-2">
-                  <Github className="h-4 w-4" />
                   Submit a new prompt
                 </Button>
               </a>
