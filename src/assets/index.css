@@ -63,6 +63,21 @@
   * {
     @apply border-border;
   }
+  html, body {
+    min-width: 600px;
+    min-height: 600px;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 16px;
+  }
+  #root {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
   body {
     @apply bg-background text-foreground;
   }

@@ -55,33 +55,42 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         run: yarn install --frozen-lockfile
 
-      - name: Build for release
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: yarn build
-
-      - name: Zip Extension
+      - name: Zip Extensions
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
-          cd dist
-          zip -r ../extension.zip *
-          cd ..
+          yarn zip
+          yarn zip:firefox
 
       - name: Upload Extension to GitHub Release
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.semantic.outputs.new_release_version }}
-          files: extension.zip
+          files: |
+            .output/*.zip
           name: v${{ steps.semantic.outputs.new_release_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload to Chrome Web Store
+      - name: Submit to Chrome Web Store
         if: steps.semantic.outputs.new_release_published == 'true'
-        uses: mnao305/chrome-extension-upload@v4.0.1
-        with:
-          file-path: extension.zip
-          extension-id: ${{ secrets.EXTENSION_ID }}
-          client-id: ${{ secrets.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          refresh-token: ${{ secrets.REFRESH_TOKEN }}
+        run: |
+          yarn wxt submit \
+            --chrome-zip .output/*-chrome.zip
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+
+      # TODO: Enable after Firefox approves first submission
+      # - name: Submit to Firefox Add-ons
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: |
+      #     yarn wxt submit \
+      #       --firefox-zip .output/*-firefox.zip \
+      #       --firefox-sources-zip .output/*-sources.zip
+      #   env:
+      #     FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+      #     FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+      #     FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}

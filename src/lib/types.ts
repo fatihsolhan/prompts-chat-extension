@@ -36,6 +36,7 @@ export type PromptType = 'TEXT' | 'STRUCTURED' | 'IMAGE' | 'VIDEO' | 'AUDIO';
 export interface Tag {
   name: string;
   color: string;
+  count?: number;
 }
 
 export interface Prompt {
@@ -46,6 +47,7 @@ export interface Prompt {
   content: string;
   type: PromptType;
   structuredFormat?: string;
+  mediaUrl?: string;
   author: string;
   authorAvatar?: string;
   category?: string;
@@ -58,6 +60,7 @@ export interface Prompt {
 export interface Category {
   name: string;
   icon?: string;
+  promptCount?: number;
 }
 
 export interface PromptsResponse {

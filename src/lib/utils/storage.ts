@@ -12,31 +12,32 @@ export function useStorage<T>({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!chrome?.storage) {
+    if (!browser?.storage) {
       setIsLoading(false);
       return;
     }
 
     let isMounted = true;
 
-    chrome.storage.sync.get(key).then(result => {
+    browser.storage.sync.get(key).then(result => {
       if (isMounted) {
-        setValue(result[key] ?? defaultValue);
+        const storedValue = result[key];
+        setValue(storedValue !== undefined ? (storedValue as T) : defaultValue);
         setIsLoading(false);
       }
     });
 
-    const handleChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
+    const handleChange = (changes: Record<string, { newValue?: unknown; oldValue?: unknown }>) => {
       if (changes[key]) {
-        setValue(changes[key].newValue);
+        setValue(changes[key].newValue as T);
       }
     };
 
-    chrome.storage.sync.onChanged.addListener(handleChange);
+    browser.storage.sync.onChanged.addListener(handleChange);
 
     return () => {
       isMounted = false;
-      chrome.storage.sync.onChanged.removeListener(handleChange);
+      browser.storage.sync.onChanged.removeListener(handleChange);
     };
   }, [key, defaultValue]);
 
@@ -51,8 +52,8 @@ export function useStorage<T>({
       }
     }
 
-    if (chrome?.storage) {
-      await chrome.storage.sync.set({ [key]: newValue });
+    if (browser?.storage) {
+      await browser.storage.sync.set({ [key]: newValue });
     }
     setValue(newValue);
   }, [key, value]);

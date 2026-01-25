@@ -8,7 +8,7 @@ import { SidePanelNotice } from '@/components/SidePanelNotice';
 import { analytics } from '@/lib/analytics';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { PromptsProvider, usePrompts } from './lib/contexts/PromptsContext';
+import { PromptsProvider, usePrompts } from '@/lib/contexts/PromptsContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,22 +27,22 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen min-w-[600px] bg-muted dark:bg-muted/30">
+    <div className="h-full w-full flex flex-col bg-muted dark:bg-muted/30 overflow-hidden">
       <SidePanelNotice />
       <Navbar />
-      <Container>
-        <main className="mx-auto">
-          <div className="mx-auto w-full">
-            {isLoading ? (
-              <LoadingPrompts />
-            ) : filteredPrompts.length === 0 ? (
-              <EmptyPrompts />
-            ) : (
-              <PromptsList className="py-6" />
-            )}
-          </div>
-        </main>
-      </Container>
+      <div className="flex-1 min-h-0">
+        {isLoading ? (
+          <Container className="h-full">
+            <LoadingPrompts />
+          </Container>
+        ) : filteredPrompts.length === 0 ? (
+          <Container className="h-full">
+            <EmptyPrompts />
+          </Container>
+        ) : (
+          <PromptsList />
+        )}
+      </div>
       <ScrollToTop />
     </div>
   );

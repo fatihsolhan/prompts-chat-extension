@@ -11,7 +11,6 @@ A browser extension that enhances [prompts.chat](https://prompts.chat) with addi
 - ⚡️ **One-Click Run**: Instantly run prompts on ChatGPT, Claude, Gemini, GitHub Copilot, and more
 - 🔍 **Smart Filtering**: Filter by category, tags, and prompt type (Text, Image, Audio, Video)
 - 📝 **Variable Customization**: Edit prompt variables and preview changes in real-time
-- ❤️ **Favorites**: Save your go-to prompts for quick access
 - 📌 **Side Panel Mode**: Keep prompts visible while you browse
 - 🌓 **Dark/Light Mode**: Easy on the eyes, day or night
 - 🎨 **Syntax Highlighting**: Beautiful JSON/YAML preview for structured prompts
@@ -23,14 +22,24 @@ A browser extension that enhances [prompts.chat](https://prompts.chat) with addi
 
 [Install from Chrome Web Store](https://chromewebstore.google.com/detail/promptschat/eemdohkhbaifiocagjlhibfbhamlbeej)
 
+### Firefox Add-ons
+
+[Install from Firefox Add-ons](https://addons.mozilla.org/firefox/addon/prompts-chat/)
+
 You can also download the latest version from our [GitHub Releases](https://github.com/fatihsolhan/prompts-chat-extension/releases)
 
-### Manual Installation
+### Manual Installation (Chrome)
 1. Clone this repository
 2. Follow the [Development](#development) steps to build the extension
 3. Open Chrome and navigate to `chrome://extensions/`
 4. Enable "Developer mode" in the top right corner
-5. Click "Load unpacked" and select the `dist` directory created by the build process
+5. Click "Load unpacked" and select the `.output/chrome-mv3` directory
+
+### Manual Installation (Firefox)
+1. Clone this repository
+2. Run `yarn install && yarn build:firefox`
+3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
+4. Click "Load Temporary Add-on" and select any file in the `.output/firefox-mv2` directory
 
 ## Development
 
@@ -64,7 +73,7 @@ This project uses [semantic-release](https://semantic-release.gitbook.io/) for a
 - Version is automatically determined from commit messages
 - CHANGELOG.md is automatically updated
 - GitHub Release is created
-- Extension is published to Chrome Web Store
+- Extension is published to Chrome Web Store and Firefox Add-ons
 
 Check our [releases page](https://github.com/fatihsolhan/prompts-chat-extension/releases) for the latest versions.
 

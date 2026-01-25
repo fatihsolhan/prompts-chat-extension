@@ -3,9 +3,12 @@ node_modules
 .pnp
 .pnp.js
 
-# Production
+# Production / Build
 dist
+.output
+.wxt
 extension.zip
+*.zip
 
 # Testing
 coverage

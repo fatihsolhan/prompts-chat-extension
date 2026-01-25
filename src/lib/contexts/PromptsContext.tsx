@@ -1,13 +1,11 @@
-import { analytics } from '@/lib/analytics';
 import { AI_MODELS } from '@/lib/constants';
 import { Category, Prompt, Tag } from '@/lib/types';
-import { useStorage } from '@/lib/utils/storage';
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { usePromptsQuery } from '../hooks/usePrompts';
+import { useWxtStorage, selectedModelStorage, isDarkModeStorage } from '@/utils/storage';
 
 type SortOption = 'latest' | 'votes' | 'alphabetical';
-type TabOption = 'all' | 'favorites';
-type TypeFilter = 'all' | 'TEXT' | 'STRUCTURED' | 'IMAGE' | 'VIDEO' | 'AUDIO';
+type TypeFilter = 'all' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO';
 
 interface PromptsContextValue {
   prompts: Prompt[];
@@ -17,7 +15,6 @@ interface PromptsContextValue {
   error: Error | null;
 
   query: string;
-  activeTab: TabOption;
   sortBy: SortOption;
   selectedCategory: string | null;
   selectedTags: string[];
@@ -26,19 +23,15 @@ interface PromptsContextValue {
   categories: Category[];
   allTags: Tag[];
 
-  favorites: string[];
-
   selectedModel: string;
   isDarkMode: boolean;
 
   setQuery: (query: string) => void;
-  setActiveTab: (tab: TabOption) => void;
   setSortBy: (sort: SortOption) => void;
   setSelectedCategory: (category: string | null) => void;
   setSelectedTags: (tags: string[]) => void;
   setSelectedType: (type: TypeFilter) => void;
-  toggleFavorite: (promptId: string) => void;
-  isFavorite: (promptId: string) => boolean;
+  clearAllFilters: () => void;
   setSelectedModel: (model: string) => Promise<void>;
   setIsDarkMode: (dark: boolean) => Promise<void>;
   refetch: () => void;
@@ -52,30 +45,20 @@ interface PromptsProviderProps {
 
 export function PromptsProvider({ children }: PromptsProviderProps) {
   const [query, setQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<TabOption>('all');
   const [sortBy, setSortBy] = useState<SortOption>('latest');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<TypeFilter>('all');
 
-  const { value: selectedModel, setValue: setSelectedModel } = useStorage({
-    key: 'selectedModel',
-    defaultValue: AI_MODELS[0].id,
-  });
+  const { value: selectedModel, setValue: setSelectedModel } = useWxtStorage(selectedModelStorage);
+  const { value: isDarkMode, setValue: setIsDarkModeStorage } = useWxtStorage(isDarkModeStorage);
 
-  const { value: isDarkMode, setValue: setIsDarkMode } = useStorage({
-    key: 'isDarkMode',
-    defaultValue: false,
-  });
+  // Wrapper for setIsDarkMode that also updates DOM immediately
+  const setIsDarkMode = useCallback(async (dark: boolean) => {
+    document.documentElement.classList.toggle('dark', dark);
+    return setIsDarkModeStorage(dark);
+  }, [setIsDarkModeStorage]);
 
-  const { value: favorites, setValue: setFavorites } = useStorage<string[]>({
-    key: 'favorites',
-    defaultValue: [],
-  });
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode);
-  }, [isDarkMode]);
   const {
     prompts,
     categories,
@@ -98,34 +81,48 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
   }, [prompts]);
 
   const filteredPrompts = useMemo(() => {
-    let result = [...prompts];
+    // Cache lowercase query once for all comparisons
+    const lowerQuery = query ? query.toLowerCase() : '';
+    const hasQuery = lowerQuery.length > 0;
+    const hasCategory = selectedCategory !== null;
+    const hasTags = selectedTags.length > 0;
+    const hasType = selectedType !== 'all';
 
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      result = result.filter(p =>
-        p.title.toLowerCase().includes(lowerQuery) ||
-        p.content.toLowerCase().includes(lowerQuery) ||
-        p.description?.toLowerCase().includes(lowerQuery) ||
-        p.tags?.some(t => t.name.toLowerCase().includes(lowerQuery))
-      );
-    }
+    // Single pass filter combining all conditions
+    const result = prompts.filter(p => {
+      // Query filter - use short-circuit evaluation for OR conditions
+      if (hasQuery) {
+        const matchesQuery =
+          p.title.toLowerCase().includes(lowerQuery) ||
+          p.content.toLowerCase().includes(lowerQuery) ||
+          p.description?.toLowerCase().includes(lowerQuery) ||
+          p.tags?.some(t => t.name.toLowerCase().includes(lowerQuery));
+        if (!matchesQuery) return false;
+      }
 
-    if (activeTab === 'favorites') {
-      result = result.filter(p => favorites.includes(p.id));
-    }
-    if (selectedCategory) {
-      result = result.filter(p => p.category === selectedCategory);
-    }
+      // Category filter
+      if (hasCategory && p.category !== selectedCategory) {
+        return false;
+      }
 
-    if (selectedTags.length > 0) {
-      result = result.filter(p =>
-        selectedTags.some(tag => p.tags?.some(t => t.name === tag))
-      );
-    }
+      // Tags filter
+      if (hasTags && !selectedTags.some(tag => p.tags?.some(t => t.name === tag))) {
+        return false;
+      }
 
-    if (selectedType !== 'all') {
-      result = result.filter(p => p.type === selectedType);
-    }
+      // Type filter - TEXT includes both TEXT and STRUCTURED types
+      if (hasType) {
+        if (selectedType === 'TEXT') {
+          if (p.type !== 'TEXT' && p.type !== 'STRUCTURED') return false;
+        } else if (p.type !== selectedType) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // Sort as separate operation (required after filter)
     switch (sortBy) {
       case 'latest':
         result.sort((a, b) =>
@@ -141,21 +138,14 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
     }
 
     return result;
-  }, [prompts, query, activeTab, sortBy, favorites, selectedCategory, selectedTags, selectedType]);
+  }, [prompts, query, sortBy, selectedCategory, selectedTags, selectedType]);
 
-  const toggleFavorite = useCallback((promptId: string) => {
-    const isCurrentlyFavorite = favorites.includes(promptId);
-    analytics.promptFavorited(promptId, isCurrentlyFavorite ? 'remove' : 'add');
-    setFavorites(prev =>
-      prev.includes(promptId)
-        ? prev.filter(id => id !== promptId)
-        : [...prev, promptId]
-    );
-  }, [favorites, setFavorites]);
-
-  const isFavorite = useCallback((promptId: string) => {
-    return favorites.includes(promptId);
-  }, [favorites]);
+  const clearAllFilters = () => {
+    setQuery('');
+    setSelectedType('all');
+    setSelectedCategory(null);
+    setSelectedTags([]);
+  };
 
   const value = useMemo<PromptsContextValue>(() => ({
     prompts,
@@ -164,24 +154,20 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
     isLoading,
     error,
     query,
-    activeTab,
     sortBy,
     selectedCategory,
     selectedTags,
     selectedType,
     categories,
     allTags,
-    favorites,
-    selectedModel,
-    isDarkMode,
+    selectedModel: selectedModel || AI_MODELS[0].id,
+    isDarkMode: isDarkMode || false,
     setQuery,
-    setActiveTab,
     setSortBy,
     setSelectedCategory,
     setSelectedTags,
     setSelectedType,
-    toggleFavorite,
-    isFavorite,
+    clearAllFilters,
     setSelectedModel,
     setIsDarkMode,
     refetch,
@@ -192,18 +178,14 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
     isLoading,
     error,
     query,
-    activeTab,
     sortBy,
     selectedCategory,
     selectedTags,
     selectedType,
     categories,
     allTags,
-    favorites,
     selectedModel,
     isDarkMode,
-    toggleFavorite,
-    isFavorite,
     setSelectedModel,
     setIsDarkMode,
     refetch,
