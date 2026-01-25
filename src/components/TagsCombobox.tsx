@@ -1,8 +1,8 @@
 /**
- * Tags Dropdown Component
+ * Tags Combobox Component
  *
- * Multi-column dropdown with toggleable tag badges.
- * Shows selected count in trigger.
+ * Elegant tag cloud picker with colorful toggleable badges.
+ * Shows selected tags inline with clear visual feedback.
  */
 
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePrompts } from '@/lib/contexts/PromptsContext';
 import { cn } from '@/lib/utils';
-import { ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, Tag, X } from 'lucide-react';
 import { useState } from 'react';
 
 export function TagsCombobox() {
@@ -32,7 +33,15 @@ export function TagsCombobox() {
     setSelectedTags([]);
   };
 
+  const removeTag = (tagName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedTags(selectedTags.filter(t => t !== tagName));
+  };
+
   const hasSelection = selectedTags.length > 0;
+
+  // Get selected tag objects for display
+  const selectedTagObjects = allTags.filter(t => selectedTags.includes(t.name));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,58 +51,106 @@ export function TagsCombobox() {
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "h-9 text-xs font-normal"
+            "h-auto min-h-9 justify-between text-xs font-normal w-full py-1.5",
+            hasSelection && "border-primary/50"
           )}
         >
-          <span>
-            Tags
-            {hasSelection && (
-              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px]">
-                {selectedTags.length}
+          <span className="flex items-center gap-1.5 flex-wrap flex-1">
+            {hasSelection ? (
+              <>
+                {selectedTagObjects.slice(0, 2).map(tag => (
+                  <span
+                    key={tag.name}
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium"
+                    style={{
+                      backgroundColor: `${tag.color}20`,
+                      color: tag.color,
+                    }}
+                  >
+                    {tag.name}
+                    <button
+                      onClick={(e) => removeTag(tag.name, e)}
+                      className="hover:opacity-70"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  </span>
+                ))}
+                {selectedTags.length > 2 && (
+                  <span className="text-[10px] text-muted-foreground">
+                    +{selectedTags.length - 2} more
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="flex items-center gap-2 text-muted-foreground">
+                <Tag className="h-3.5 w-3.5" />
+                Select tags
               </span>
             )}
           </span>
-          <ChevronDown className="h-3 w-3 shrink-0 opacity-50" />
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-50 ml-1" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="min-w-[360px] p-3">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-medium text-muted-foreground">
-            Select tags to filter
-          </span>
+      <PopoverContent className="w-[320px] p-0" align="start">
+        <div className="flex items-center justify-between p-2 border-b border-border">
+          <p className="text-xs font-medium text-muted-foreground px-1">
+            Filter by tags
+          </p>
           {hasSelection && (
             <Button
               variant="ghost"
               size="sm"
               onClick={clearTags}
-              className="h-6 px-2 text-xs"
+              className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
             >
               Clear all
             </Button>
           )}
         </div>
-
-        <div className="flex flex-wrap gap-3 max-h-[280px] overflow-y-auto">
-          {allTags.map((tag) => {
-            const isSelected = selectedTags.includes(tag.name);
-            return (
-              <Button
-                variant="outline"
-                size="sm"
-                key={tag.name}
-                onClick={() => toggleTag(tag.name)}
-                className="text-xs h-8"
-                style={{
-                  backgroundColor: isSelected ? `${tag.color}30` : `${tag.color}15`,
-                  color: tag.color,
-                  borderColor: isSelected ? tag.color : 'transparent',
-                }}
-              >
-                <span className="truncate">{tag.name}</span>
-              </Button>
-            );
-          })}
-        </div>
+        <ScrollArea className="h-[300px]">
+          <div className="p-3">
+            <div className="flex flex-wrap gap-2">
+              {allTags.map((tag) => {
+                const isSelected = selectedTags.includes(tag.name);
+                return (
+                  <button
+                    key={tag.name}
+                    onClick={() => toggleTag(tag.name)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                      "border border-transparent",
+                      "hover:scale-[1.02] active:scale-[0.98]"
+                    )}
+                    style={{
+                      backgroundColor: isSelected ? `${tag.color}30` : `${tag.color}12`,
+                      color: tag.color,
+                      borderColor: isSelected ? tag.color : 'transparent',
+                    }}
+                  >
+                    {isSelected && <Check className="h-3 w-3" />}
+                    <span>{tag.name}</span>
+                    {tag.count !== undefined && (
+                      <span
+                        className="text-[10px] opacity-70 ml-0.5"
+                        style={{ color: tag.color }}
+                      >
+                        {tag.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </ScrollArea>
+        {hasSelection && (
+          <div className="p-2 border-t border-border bg-muted/30">
+            <p className="text-[10px] text-muted-foreground text-center">
+              {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''} selected
+            </p>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

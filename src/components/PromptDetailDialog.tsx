@@ -1,34 +1,23 @@
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { useCopy } from '@/hooks/useCopy';
-import { analytics } from '@/lib/analytics';
-import { usePrompts } from '@/lib/contexts/PromptsContext';
-import { Prompt, TemplateVariable } from '@/lib/types';
-import {
-  applyTemplateVariables,
-  hasTemplateVariables,
-  parseTemplateVariables,
-} from '@/lib/utils/prompts';
-import {
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  ExternalLink,
-  Heart,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { HighlightedContent } from './HighlightedContent';
-import { RunPromptButton } from './RunPromptButton';
-import { TypeBadge } from './TypeBadge';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCopy } from "@/hooks/useCopy";
+import { analytics } from "@/lib/analytics";
+import { Prompt, Tag, TemplateVariable } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { applyTemplateVariables, hasTemplateVariables, parseTemplateVariables } from "@/lib/utils/prompts";
+import { Check, Copy, ExternalLink, Variable } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { AudioPlayer } from "./AudioPlayer";
+import { HighlightedContent } from "./HighlightedContent";
+import { RunPromptButton } from "./RunPromptButton";
+import { TypeBadge } from "./TypeBadge";
+
+const MAX_VISIBLE_TAGS = 3;
+const EMPTY_TAGS: Tag[] = [];
 
 interface PromptDetailDialogProps {
   prompt: Prompt | null;
@@ -36,22 +25,223 @@ interface PromptDetailDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface TagBadgeProps {
+  tag: Tag;
+}
 
-export function PromptDetailDialog({ prompt, open, onOpenChange }: PromptDetailDialogProps) {
-  const { toggleFavorite, isFavorite } = usePrompts();
+function TagBadge({ tag }: TagBadgeProps): React.ReactElement {
+  return (
+    <Badge
+      variant="outline"
+      className="font-normal text-[10px] px-1.5 py-0"
+      style={{
+        backgroundColor: `${tag.color}15`,
+        color: tag.color,
+        borderColor: `${tag.color}40`,
+      }}
+    >
+      {tag.name}
+    </Badge>
+  );
+}
+
+interface MediaThumbnailProps {
+  prompt: Prompt;
+}
+
+function MediaThumbnail({ prompt }: MediaThumbnailProps): React.ReactElement {
+  const thumbnailContent = (
+    <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-muted cursor-zoom-in">
+      {prompt.type === "IMAGE" ? (
+        <img src={prompt.mediaUrl} alt={prompt.title} className="w-full h-full object-cover" />
+      ) : (
+        <video src={prompt.mediaUrl} className="w-full h-full object-cover" preload="metadata" muted />
+      )}
+    </div>
+  );
+
+  if (prompt.type === "IMAGE") {
+    return (
+      <HoverCard openDelay={200} closeDelay={100}>
+        <HoverCardTrigger asChild>{thumbnailContent}</HoverCardTrigger>
+        <HoverCardContent side="right" align="start" sideOffset={8} className="w-auto max-w-[400px] p-2">
+          <img
+            src={prompt.mediaUrl}
+            alt={prompt.title}
+            className="w-full h-auto max-h-[300px] object-contain rounded-md"
+          />
+        </HoverCardContent>
+      </HoverCard>
+    );
+  }
+
+  return thumbnailContent;
+}
+
+interface TagsDisplayProps {
+  tags: Tag[];
+}
+
+function TagsDisplay({ tags }: TagsDisplayProps): React.ReactElement | null {
+  if (tags.length === 0) return null;
+
+  const visibleTags = tags.slice(0, MAX_VISIBLE_TAGS);
+  const hiddenTags = tags.slice(MAX_VISIBLE_TAGS);
+
+  return (
+    <>
+      <Separator orientation="vertical" className="h-3" />
+      <div className="flex items-center gap-1">
+        {visibleTags.map((tag) => (
+          <TagBadge key={tag.name} tag={tag} />
+        ))}
+        {hiddenTags.length > 0 ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-[10px] text-muted-foreground cursor-default">+{hiddenTags.length}</span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <div className="flex flex-wrap gap-1 max-w-[200px]">
+                  {hiddenTags.map((tag) => (
+                    <TagBadge key={tag.name} tag={tag} />
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
+interface VariableIndicatorProps {
+  filledCount: number;
+  totalCount: number;
+}
+
+function VariableIndicator({ filledCount, totalCount }: VariableIndicatorProps): React.ReactElement {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-md">
+            <Variable className="h-3 w-3" />
+            <span>
+              {filledCount}/{totalCount}
+            </span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="top">Click highlighted variables in content to edit</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+interface DialogFooterActionsProps {
+  prompt: Prompt;
+  finalContent: string;
+  isCopied: boolean;
+  hasVariables: boolean;
+  filledVariablesCount: number;
+  totalVariablesCount: number;
+  onCopy: () => void;
+  onClose: () => void;
+}
+
+function DialogFooterActions({
+  prompt,
+  finalContent,
+  isCopied,
+  hasVariables,
+  filledVariablesCount,
+  totalVariablesCount,
+  onCopy,
+  onClose,
+}: DialogFooterActionsProps): React.ReactElement {
+  return (
+    <div className="px-4 py-3 flex items-center justify-between bg-muted/50 border-t border-border">
+      <div className="flex items-center gap-2">
+        <RunPromptButton promptId={prompt.id} promptContent={finalContent} onRun={onClose} />
+        {hasVariables && totalVariablesCount > 0 && (
+          <VariableIndicator filledCount={filledVariablesCount} totalCount={totalVariablesCount} />
+        )}
+      </div>
+
+      <div className="flex items-center gap-1">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onCopy}
+                className={cn(
+                  "h-8 w-8 transition-all duration-200",
+                  isCopied ? "text-green-500 scale-110" : "text-muted-foreground hover:text-foreground",
+                )}
+                data-testid="copy-button"
+              >
+                {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">{isCopied ? "Copied!" : "Copy prompt"}</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                asChild
+              >
+                <a
+                  href={`https://prompts.chat/prompts/${prompt.id}_${prompt.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">View on prompts.chat</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
+  );
+}
+
+export function PromptDetailDialog({ prompt, open, onOpenChange }: PromptDetailDialogProps): React.ReactElement | null {
   const { copy } = useCopy();
   const [isCopied, setIsCopied] = useState(false);
   const [variables, setVariables] = useState<TemplateVariable[]>([]);
-  const [showVariables, setShowVariables] = useState(true);
-
-
-  const favorite = prompt ? isFavorite(prompt.id) : false;
   const hasVars = prompt ? hasTemplateVariables(prompt.content) : false;
+
+  const finalContent = hasVars && prompt ? applyTemplateVariables(prompt.content, variables) : (prompt?.content ?? "");
+
+  const handleCopy = useCallback((): void => {
+    if (!prompt) return;
+    copy(finalContent).then(() => {
+      setIsCopied(true);
+      analytics.promptCopied(prompt.id, prompt.category);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  }, [prompt, finalContent, copy]);
+
+  const updateVariable = useCallback((name: string, value: string): void => {
+    setVariables((prev) => prev.map((v) => (v.name === name ? { ...v, value } : v)));
+  }, []);
+
+  const handleClose = useCallback((): void => {
+    onOpenChange(false);
+  }, [onOpenChange]);
 
   useEffect(() => {
     if (prompt && hasVars) {
-      const parsed = parseTemplateVariables(prompt.content);
-      setVariables(parsed);
+      setVariables(parseTemplateVariables(prompt.content));
     } else {
       setVariables([]);
     }
@@ -71,168 +261,85 @@ export function PromptDetailDialog({ prompt, open, onOpenChange }: PromptDetailD
 
   if (!prompt) return null;
 
-  const finalContent = hasVars
-    ? applyTemplateVariables(prompt.content, variables)
-    : prompt.content;
-
-  const onCopy = () => {
-    copy(finalContent).then(() => {
-      setIsCopied(true);
-      analytics.promptCopied(prompt.id, prompt.category);
-      setTimeout(() => setIsCopied(false), 2000);
-    });
-  };
-
-  const updateVariable = (name: string, value: string) => {
-    setVariables(prev => prev.map(v => (v.name === name ? { ...v, value } : v)));
-  };
+  const filledVariablesCount = variables.filter((v) => v.value?.trim()).length;
+  const hasMediaThumbnail = prompt.mediaUrl && (prompt.type === "IMAGE" || prompt.type === "VIDEO");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[580px] p-0 max-h-[90vh] grid grid-rows-[auto_auto_auto_1fr] min-h-0 gap-0 overflow-hidden overscroll-contain">
-        <div className="px-6 pt-6 pb-4 border-b border-border">
-          <DialogHeader className="text-left mb-1.5">
-            <DialogTitle className="pr-4 leading-snug">
-              {prompt.title}&nbsp;&nbsp;<TypeBadge type={prompt.type} />
-            </DialogTitle>
-            {prompt.description && (
-              <DialogDescription className="">
-                {prompt.description}
-              </DialogDescription>
-            )}
-          </DialogHeader>
+      <DialogContent className="p-0 grid grid-rows-[auto_1fr_auto] gap-0 overflow-y-auto">
+        <div className="px-4 pt-4 pb-3 border-b border-border">
+          <div className="flex gap-3">
+            {hasMediaThumbnail && <MediaThumbnail prompt={prompt} />}
 
-          <div className="flex items-center gap-2 flex-wrap text-sm">
-            <a
-              href={`https://prompts.chat/@${prompt.author}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors font-medium underline"
-            >
-              @{prompt.author}
-            </a>
-            {prompt.category && (
-              <Badge variant="secondary" className="font-normal">
-                {prompt.category}
-              </Badge>
-            )}
-            {prompt.tags && prompt.tags.length > 0 && (
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {prompt.tags.slice(0, 4).map(tag => (
-                  <Badge
-                    key={tag.name}
-                    variant="outline"
-                    className="font-normal text-[11px] px-2 py-0"
-                    style={{
-                      backgroundColor: `${tag.color}15`,
-                      color: tag.color,
-                      borderColor: `${tag.color}40`,
-                    }}
-                  >
-                    {tag.name}
-                  </Badge>
-                ))}
-                {prompt.tags.length > 4 && (
-                  <span className="text-xs text-muted-foreground">
-                    +{prompt.tags.length - 4}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <div className="px-6 py-3 flex items-center justify-between bg-muted/30 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onCopy}
-                className="h-8 gap-1.5 text-muted-foreground hover:text-foreground"
-              >
-                {isCopied ? (
-                  <>
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span className="text-green-600">Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copy
-                  </>
-                )}
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 text-muted-foreground" asChild>
+            <div className="flex-1 min-w-0">
+              <DialogHeader className="text-left mb-1.5">
+                <div className="flex items-start justify-between gap-3 pr-6">
+                  <DialogTitle className="leading-snug flex-1 text-base">{prompt.title}</DialogTitle>
+                  <TypeBadge type={prompt.type} />
+                </div>
+                {prompt.description ? (
+                  <DialogDescription className="mt-1 text-xs line-clamp-2">{prompt.description}</DialogDescription>
+                ) : null}
+              </DialogHeader>
+
+              <div className="flex items-center gap-2 text-xs flex-wrap">
                 <a
-                  href={`https://prompts.chat/prompts/${prompt.id}_${prompt.slug}`}
+                  href={`https://prompts.chat/@${prompt.author}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium"
                 >
-                  <ExternalLink className="h-4 w-4 mr-1.5" />
-                  View
+                  @{prompt.author}
                 </a>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 ${favorite ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground'}`}
-                onClick={() => toggleFavorite(prompt.id)}
-              >
-                <Heart className={`h-4 w-4 ${favorite ? 'fill-current' : ''}`} />
-              </Button>
-            </div>
 
-            <RunPromptButton
-              promptId={prompt.id}
-              promptContent={finalContent}
-              onRun={() => onOpenChange(false)}
-            />
+                {prompt.category ? (
+                  <>
+                    <Separator orientation="vertical" className="h-3" />
+                    <Badge variant="secondary" className="font-normal text-[10px] px-1.5 py-0">
+                      {prompt.category}
+                    </Badge>
+                  </>
+                ) : null}
+
+                <TagsDisplay tags={prompt.tags ?? EMPTY_TAGS} />
+              </div>
+            </div>
           </div>
-
-          {hasVars && variables.length > 0 && (
-            <div className="bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900">
-              <button
-                onClick={() => setShowVariables(!showVariables)}
-                className="w-full px-6 py-2.5 flex items-center justify-between text-left hover:bg-amber-100/50 dark:hover:bg-amber-900/20 transition-colors"
-              >
-                <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                  Customize Variables ({variables.length})
-                </span>
-                {showVariables ? (
-                  <ChevronUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                )}
-              </button>
-
-              {showVariables && (
-                <div className="px-6 pb-4 grid grid-cols-2 gap-3 items-end">
-                  {variables.map(variable => (
-                    <div key={variable.name} className="space-y-1.5">
-                      <label className="text-xs font-medium text-amber-700 dark:text-amber-400">
-                        {variable.name}
-                      </label>
-                      <Input
-                        value={variable.value || ''}
-                        onChange={e => updateVariable(variable.name, e.target.value)}
-                        placeholder={variable.defaultValue || `Enter ${variable.name}`}
-                        className="h-8 text-sm bg-white dark:bg-background"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
-        <div className="px-6 py-5 w-full h-full min-h-0">
+        <div className="px-4 py-3 space-y-3 grid grid-rows-[auto_1fr] min-h-0 h-full">
+          {prompt.mediaUrl && prompt.type === "VIDEO" && (
+            <video
+              src={prompt.mediaUrl}
+              controls
+              className="w-full max-h-[200px] rounded-lg bg-black"
+              preload="metadata"
+            >
+              Your browser does not support video playback.
+            </video>
+          )}
+
+          {prompt.mediaUrl && prompt.type === "AUDIO" && <AudioPlayer src={prompt.mediaUrl} />}
+
           <HighlightedContent
             content={prompt.content}
             variables={variables}
             structuredFormat={prompt.structuredFormat}
+            editable={hasVars}
+            onVariableChange={updateVariable}
           />
         </div>
+
+        <DialogFooterActions
+          prompt={prompt}
+          finalContent={finalContent}
+          isCopied={isCopied}
+          hasVariables={hasVars}
+          filledVariablesCount={filledVariablesCount}
+          totalVariablesCount={variables.length}
+          onCopy={handleCopy}
+          onClose={handleClose}
+        />
       </DialogContent>
     </Dialog>
   );

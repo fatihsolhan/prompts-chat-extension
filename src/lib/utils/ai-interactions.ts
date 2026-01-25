@@ -4,7 +4,7 @@ export async function usePromptInAI(prompt: string, platform: Platform): Promise
   if (!platform) return false;
 
   try {
-    const response = await chrome.runtime.sendMessage({
+    const response = await browser.runtime.sendMessage({
       action: 'usePrompt',
       data: {
         modelId: platform.id,

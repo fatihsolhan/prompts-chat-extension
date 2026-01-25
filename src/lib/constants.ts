@@ -6,6 +6,7 @@ export interface Platform {
   inputSelector: string;
   supportsQuerystring?: boolean;
   isDeeplink?: boolean;
+  sponsor?: boolean;
 }
 
 export const CHAT_PLATFORMS: Platform[] = [
@@ -26,6 +27,22 @@ export const CHAT_PLATFORMS: Platform[] = [
     supportsQuerystring: true,
   },
   {
+    id: 'copilot',
+    name: 'Microsoft Copilot',
+    icon: '/brand-logos/copilot-color.svg',
+    baseUrl: 'https://copilot.microsoft.com',
+    inputSelector: '#userInput',
+    supportsQuerystring: true,
+  },
+  {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    icon: '/brand-logos/deepseek-color.svg',
+    baseUrl: 'https://chat.deepseek.com',
+    inputSelector: 'textarea',
+    supportsQuerystring: true,
+  },
+  {
     id: 'gemini',
     name: 'Gemini',
     icon: '/brand-logos/google-gemini-icon.svg',
@@ -34,26 +51,10 @@ export const CHAT_PLATFORMS: Platform[] = [
     supportsQuerystring: false,
   },
   {
-    id: 'copilot',
-    name: 'Microsoft Copilot',
-    icon: '/brand-logos/copilot-color.svg',
-    baseUrl: 'https://copilot.microsoft.com',
-    inputSelector: '#userInput',
-    supportsQuerystring: false,
-  },
-  {
-    id: 'deepseek',
-    name: 'DeepSeek',
-    icon: '/brand-logos/deepseek-color.svg',
-    baseUrl: 'https://chat.deepseek.com',
-    inputSelector: 'textarea',
-    supportsQuerystring: false,
-  },
-  {
     id: 'grok',
     name: 'Grok',
     icon: '/brand-logos/grok.svg',
-    baseUrl: 'https://grok.com/chat',
+    baseUrl: 'https://grok.com/chat?reasoningMode=none',
     inputSelector: 'textarea',
     supportsQuerystring: true,
   },
@@ -87,11 +88,69 @@ export const CHAT_PLATFORMS: Platform[] = [
     icon: '/brand-logos/poe-color.svg',
     baseUrl: 'https://poe.com',
     inputSelector: 'textarea',
+    supportsQuerystring: true,
+  },
+  {
+    id: 'llama',
+    name: 'Meta AI',
+    icon: '/brand-logos/meta-icon.svg',
+    baseUrl: 'https://www.meta.ai',
+    inputSelector: 'textarea',
+    supportsQuerystring: false,
+  },
+  {
+    id: 'phind',
+    name: 'Phind',
+    icon: '/brand-logos/phind.svg',
+    baseUrl: 'https://www.phind.com',
+    inputSelector: 'textarea',
+    supportsQuerystring: true,
+  },
+  {
+    id: 'you',
+    name: 'You.com',
+    icon: '',
+    baseUrl: 'https://you.com',
+    inputSelector: 'textarea',
+    supportsQuerystring: true,
+  },
+  {
+    id: 'fal',
+    name: 'fal.ai',
+    icon: '/brand-logos/fal.svg',
+    baseUrl: 'https://fal.ai/sandbox',
+    inputSelector: 'textarea',
+    supportsQuerystring: true,
+  },
+  {
+    id: 'pi',
+    name: 'Pi',
+    icon: '/brand-logos/pi.svg',
+    baseUrl: 'https://pi.ai',
+    inputSelector: 'textarea',
+    supportsQuerystring: false,
+  },
+  {
+    id: 'manus',
+    name: 'Manus',
+    icon: '/brand-logos/manus.svg',
+    baseUrl: 'https://manus.im/app',
+    inputSelector: 'textarea',
     supportsQuerystring: false,
   },
 ];
 
 export const CODE_PLATFORMS: Platform[] = [
+  {
+    id: 'windsurf',
+    name: 'Windsurf',
+    icon: '/brand-logos/windsurf.svg',
+    baseUrl: 'windsurf://',
+    inputSelector: '',
+    isDeeplink: true,
+    supportsQuerystring: false,
+    sponsor: true,
+  },
   {
     id: 'cursor',
     name: 'Cursor',
@@ -102,19 +161,19 @@ export const CODE_PLATFORMS: Platform[] = [
     supportsQuerystring: true,
   },
   {
-    id: 'windsurf',
-    name: 'Windsurf',
-    icon: '/brand-logos/windsurf.svg',
-    baseUrl: 'windsurf://',
+    id: 'vscode',
+    name: 'VS Code',
+    icon: '/brand-logos/vscode.svg',
+    baseUrl: 'vscode://',
     inputSelector: '',
     isDeeplink: true,
     supportsQuerystring: false,
   },
   {
-    id: 'vscode',
-    name: 'VS Code',
-    icon: '/brand-logos/vscode.svg',
-    baseUrl: 'vscode://',
+    id: 'vscode-insiders',
+    name: 'VS Code Insiders',
+    icon: '',
+    baseUrl: 'vscode-insiders://',
     inputSelector: '',
     isDeeplink: true,
     supportsQuerystring: false,
@@ -151,6 +210,14 @@ export const CODE_PLATFORMS: Platform[] = [
     inputSelector: 'textarea',
     supportsQuerystring: true,
   },
+  {
+    id: 'ai2sql',
+    name: 'AI2SQL',
+    icon: '',
+    baseUrl: 'https://builder.ai2sql.io/dashboard/builder-all-lp?tab=generate',
+    inputSelector: 'textarea',
+    supportsQuerystring: true,
+  },
 ];
 
 export const CHAT_MODELS = CHAT_PLATFORMS;
@@ -161,10 +228,7 @@ export function buildPlatformUrl(platformId: string, baseUrl: string, promptText
   const encoded = encodeURIComponent(promptText);
 
   switch (platformId) {
-    case 'cursor':
-      return `${baseUrl}?text=${encoded}`;
-    case 'bolt':
-      return `${baseUrl}?prompt=${encoded}`;
+    // Chat platforms
     case 'chatgpt':
       return `${baseUrl}/?q=${encoded}`;
     case 'claude':
@@ -173,20 +237,35 @@ export function buildPlatformUrl(platformId: string, baseUrl: string, promptText
       return `${baseUrl}/?q=${encoded}`;
     case 'deepseek':
       return `${baseUrl}/?q=${encoded}`;
-    case 'github-copilot':
-      return `${baseUrl}?prompt=${encoded}`;
     case 'grok':
+      return `${baseUrl}&q=${encoded}`;
+    case 'perplexity':
+      return `${baseUrl}/search?q=${encoded}`;
+    case 'mistral':
       return `${baseUrl}?q=${encoded}`;
     case 'huggingface':
       return `${baseUrl}/?prompt=${encoded}`;
+    case 'poe':
+      return `${baseUrl}/?q=${encoded}`;
+    case 'phind':
+      return `${baseUrl}/search?q=${encoded}`;
+    case 'you':
+      return `${baseUrl}/search?q=${encoded}`;
+    case 'fal':
+      return `${baseUrl}?prompt=${encoded}`;
+    // Code platforms
+    case 'cursor':
+      return `${baseUrl}?text=${encoded}`;
+    case 'github-copilot':
+      return `${baseUrl}?prompt=${encoded}`;
+    case 'bolt':
+      return `${baseUrl}?prompt=${encoded}`;
     case 'lovable':
       return `${baseUrl}/?autosubmit=true#prompt=${encoded}`;
-    case 'mistral':
-      return `${baseUrl}?q=${encoded}`;
-    case 'perplexity':
-      return `${baseUrl}/search?q=${encoded}`;
     case 'v0':
       return `${baseUrl}?q=${encoded}`;
+    case 'ai2sql':
+      return `${baseUrl}&prompt=${encoded}`;
     default:
       return `${baseUrl}?q=${encoded}`;
   }

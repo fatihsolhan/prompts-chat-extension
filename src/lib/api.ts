@@ -1,6 +1,6 @@
-import { ApiPrompt, Category, Prompt, PromptsResponse } from './types';
+import { ApiPrompt, Category, Prompt, PromptsResponse } from "./types";
 
-const API_URL = 'https://prompts.chat/prompts.json';
+const API_URL = "https://prompts.chat/prompts.json";
 
 let cachedPrompts: Prompt[] | null = null;
 let cachedCategories: Category[] | null = null;
@@ -14,15 +14,17 @@ function mapApiPromptToPrompt(apiPrompt: ApiPrompt): Prompt {
     slug: apiPrompt.slug,
     description: apiPrompt.description || undefined,
     content: apiPrompt.content,
-    type: apiPrompt.type || 'TEXT',
+    type: apiPrompt.type || "TEXT",
     structuredFormat: apiPrompt.structuredFormat || undefined,
-    author: apiPrompt.author?.username || 'anonymous',
+    mediaUrl: apiPrompt.mediaUrl || undefined,
+    author: apiPrompt.author?.username || "anonymous",
     authorAvatar: apiPrompt.author?.avatar || undefined,
     category: apiPrompt.category?.name,
-    tags: apiPrompt.tags?.map(t => ({
-      name: t.name,
-      color: t.color || '#888',
-    })) || [],
+    tags:
+      apiPrompt.tags?.map((t) => ({
+        name: t.name,
+        color: t.color || "#888",
+      })) || [],
     votes: apiPrompt.voteCount || 0,
     createdAt: apiPrompt.createdAt,
     isFeatured: apiPrompt.isFeatured || false,
@@ -32,7 +34,7 @@ function mapApiPromptToPrompt(apiPrompt: ApiPrompt): Prompt {
 function extractCategories(prompts: ApiPrompt[]): Category[] {
   const categoryMap = new Map<string, Category>();
 
-  prompts.forEach(p => {
+  prompts.forEach((p) => {
     if (!p.category) return;
     if (!categoryMap.has(p.category.name)) {
       categoryMap.set(p.category.name, {
@@ -42,9 +44,7 @@ function extractCategories(prompts: ApiPrompt[]): Category[] {
     }
   });
 
-  return Array.from(categoryMap.values()).sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
+  return Array.from(categoryMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function fetchPrompts(): Promise<PromptsResponse> {

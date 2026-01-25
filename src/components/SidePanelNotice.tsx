@@ -2,6 +2,12 @@ import { PanelRight, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 
+// Declare chrome global for Chrome-specific APIs (sidePanel)
+declare const chrome: typeof globalThis extends { chrome: infer T } ? T : any;
+
+// Check if we're in Chrome (has sidePanel API) or Firefox (uses sidebar)
+const isChrome = typeof chrome !== 'undefined' && !!chrome?.sidePanel;
+
 export function SidePanelNotice() {
   const [isPopup, setIsPopup] = useState(false);
   const [dismissed, setDismissed] = useState(true);
@@ -11,16 +17,23 @@ export function SidePanelNotice() {
     const context = rootElement?.dataset.context;
     setIsPopup(context === 'popup');
 
-    chrome.storage.local.get('sidepanel_notice_dismissed').then((result) => {
+    browser.storage.local.get('sidepanel_notice_dismissed').then((result) => {
       setDismissed(result.sidepanel_notice_dismissed === true);
     });
   }, []);
 
   const handleOpenSidePanel = async () => {
     try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) {
-        await chrome.sidePanel.open({ tabId: tab.id });
+      if (isChrome) {
+        // Chrome: use sidePanel API
+        const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+        if (tab?.id) {
+          await chrome.sidePanel.open({ tabId: tab.id });
+          window.close();
+        }
+      } else {
+        // Firefox: open sidebar via browser API
+        await (browser as any).sidebarAction.open();
         window.close();
       }
     } catch (error) {
@@ -30,7 +43,7 @@ export function SidePanelNotice() {
 
   const handleDismiss = () => {
     setDismissed(true);
-    chrome.storage.local.set({ sidepanel_notice_dismissed: true });
+    browser.storage.local.set({ sidepanel_notice_dismissed: true });
   };
 
   if (!isPopup || dismissed) return null;

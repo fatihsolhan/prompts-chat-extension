@@ -23,26 +23,15 @@ const SIZES = {
 
 export function Logo({ size = "md", showText = true, className }: LogoProps) {
   return (
-    <div className={cn("flex items-center space-x-2", className)}>
-      <img
-        src="/logos/logo-light.svg"
-        alt="prompts.chat logo"
-        className={cn(SIZES[size].container, "dark:hidden")}
-      />
+    <div className={cn("flex items-center gap-2", className)}>
+      <img src="/logos/logo-light.svg" alt="prompts.chat logo" className={cn(SIZES[size].container, "dark:hidden")} />
       <img
         src="/logos/logo-dark.svg"
         alt="prompts.chat logo"
         className={cn(SIZES[size].container, "hidden dark:block")}
       />
       {showText && (
-        <h1
-          className={cn(
-            SIZES[size].text,
-            "font-semibold text-lg inline-block text-foreground"
-          )}
-        >
-          prompts.chat
-        </h1>
+        <h1 className={cn(SIZES[size].text, "font-semibold text-lg inline-block text-foreground")}>prompts.chat</h1>
       )}
     </div>
   );
