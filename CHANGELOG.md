@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.3.2...v1.4.0) (2026-01-25)
+
+### ✨ Features
+
+* Migrate to WXT framework with Firefox support ([#9](https://github.com/fatihsolhan/prompts-chat-extension/issues/9)) ([4c58f0c](https://github.com/fatihsolhan/prompts-chat-extension/commit/4c58f0cc2bb8febcf76b626f49c1119d4206cc47))
+
 ## [1.3.2](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.3.1...v1.3.2) (2026-01-04)
 
 ### 🔧 Maintenance
