@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.4.0...v1.5.0) (2026-02-28)
+
+### ✨ Features
+
+* add AI platform settings dialog with Duck.ai support ([#10](https://github.com/fatihsolhan/prompts-chat-extension/issues/10)) ([55221f9](https://github.com/fatihsolhan/prompts-chat-extension/commit/55221f9af9ecd6ce2166738d4540e0de35f38ea0))
+
 ## [1.4.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.3.2...v1.4.0) (2026-01-25)
 
 ### ✨ Features
