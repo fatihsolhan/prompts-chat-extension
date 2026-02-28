@@ -57,14 +57,15 @@ export function RunPromptButton({
   className,
   onRun,
 }: RunPromptButtonProps): React.ReactElement {
-  const { setSelectedModel } = usePrompts();
+  const { setSelectedModel, isPlatformEnabled } = usePrompts();
   const { copy } = useCopy();
   const [isLoading, setIsLoading] = useState(false);
   const [copiedForPlatform, setCopiedForPlatform] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"chat" | "code">("chat");
 
-  const platforms = tab === "chat" ? CHAT_PLATFORMS : CODE_PLATFORMS;
+  const allPlatforms = tab === "chat" ? CHAT_PLATFORMS : CODE_PLATFORMS;
+  const platforms = allPlatforms.filter((p) => isPlatformEnabled(p.id));
 
   const handleRunOnPlatform = async (platform: Platform): Promise<void> => {
     setOpen(false);

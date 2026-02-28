@@ -138,6 +138,14 @@ export const CHAT_PLATFORMS: Platform[] = [
     inputSelector: 'textarea',
     supportsQuerystring: false,
   },
+  {
+    id: 'duckai',
+    name: 'Duck.ai',
+    icon: '/brand-logos/duckduckgo.svg',
+    baseUrl: 'https://duck.ai',
+    inputSelector: 'textarea',
+    supportsQuerystring: false,
+  },
 ];
 
 export const CODE_PLATFORMS: Platform[] = [

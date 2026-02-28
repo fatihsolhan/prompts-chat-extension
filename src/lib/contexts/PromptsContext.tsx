@@ -2,7 +2,7 @@ import { AI_MODELS } from '@/lib/constants';
 import { Category, Prompt, Tag } from '@/lib/types';
 import { ReactNode, createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { usePromptsQuery } from '../hooks/usePrompts';
-import { useWxtStorage, selectedModelStorage, isDarkModeStorage } from '@/utils/storage';
+import { useWxtStorage, selectedModelStorage, isDarkModeStorage, platformEnabledStorage } from '@/utils/storage';
 
 type SortOption = 'latest' | 'votes' | 'alphabetical';
 type TypeFilter = 'all' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO';
@@ -25,6 +25,8 @@ interface PromptsContextValue {
 
   selectedModel: string;
   isDarkMode: boolean;
+  platformEnabled: Record<string, boolean>;
+  isPlatformEnabled: (platformId: string) => boolean;
 
   setQuery: (query: string) => void;
   setSortBy: (sort: SortOption) => void;
@@ -34,6 +36,7 @@ interface PromptsContextValue {
   clearAllFilters: () => void;
   setSelectedModel: (model: string) => Promise<void>;
   setIsDarkMode: (dark: boolean) => Promise<void>;
+  setPlatformEnabled: (platformId: string, enabled: boolean) => Promise<void>;
   refetch: () => void;
 }
 
@@ -52,6 +55,17 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
 
   const { value: selectedModel, setValue: setSelectedModel } = useWxtStorage(selectedModelStorage);
   const { value: isDarkMode, setValue: setIsDarkModeStorage } = useWxtStorage(isDarkModeStorage);
+  const { value: platformEnabled, setValue: setPlatformEnabledStorage } = useWxtStorage(platformEnabledStorage);
+
+  const isPlatformEnabled = useCallback((platformId: string) => {
+    const settings = platformEnabled || {};
+    return settings[platformId] !== false; // default to enabled
+  }, [platformEnabled]);
+
+  const setPlatformEnabled = useCallback(async (platformId: string, enabled: boolean) => {
+    const current = platformEnabled || {};
+    await setPlatformEnabledStorage({ ...current, [platformId]: enabled });
+  }, [platformEnabled, setPlatformEnabledStorage]);
 
   // Wrapper for setIsDarkMode that also updates DOM immediately
   const setIsDarkMode = useCallback(async (dark: boolean) => {
@@ -162,6 +176,8 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
     allTags,
     selectedModel: selectedModel || AI_MODELS[0].id,
     isDarkMode: isDarkMode || false,
+    platformEnabled: platformEnabled || {},
+    isPlatformEnabled,
     setQuery,
     setSortBy,
     setSelectedCategory,
@@ -170,6 +186,7 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
     clearAllFilters,
     setSelectedModel,
     setIsDarkMode,
+    setPlatformEnabled,
     refetch,
   }), [
     prompts,
@@ -186,8 +203,11 @@ export function PromptsProvider({ children }: PromptsProviderProps) {
     allTags,
     selectedModel,
     isDarkMode,
+    platformEnabled,
+    isPlatformEnabled,
     setSelectedModel,
     setIsDarkMode,
+    setPlatformEnabled,
     refetch,
   ]);
 

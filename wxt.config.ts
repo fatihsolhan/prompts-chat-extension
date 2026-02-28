@@ -34,6 +34,7 @@ export default defineConfig({
       "https://bolt.new/*",
       "https://lovable.dev/*",
       "https://v0.dev/*",
+      "https://duck.ai/*",
       "https://prompts.chat/*",
     ],
     web_accessible_resources: [
