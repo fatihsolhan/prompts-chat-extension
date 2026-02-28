@@ -1,3 +1,9 @@
+## [1.5.2](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.5.1...v1.5.2) (2026-02-28)
+
+### 🔧 Maintenance
+
+* trigger release ([359e6f4](https://github.com/fatihsolhan/prompts-chat-extension/commit/359e6f4a503b30fe89ce5c823db7dc832f11916e))
+
 ## [1.5.1](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.5.0...v1.5.1) (2026-02-28)
 
 ### 👷 CI

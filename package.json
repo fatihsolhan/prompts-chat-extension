@@ -2,7 +2,7 @@
   "name": "prompts-chat",
   "description": "prompts.chat - AI-powered prompt library for ChatGPT, Claude, Gemini, and more",
   "private": false,
-  "version": "1.5.1",
+  "version": "1.5.2",
   "type": "module",
   "scripts": {
     "dev": "wxt",
