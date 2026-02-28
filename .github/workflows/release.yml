@@ -83,14 +83,13 @@ jobs:
           CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
 
-      # TODO: Enable after Firefox approves first submission
-      # - name: Submit to Firefox Add-ons
-      #   if: steps.semantic.outputs.new_release_published == 'true'
-      #   run: |
-      #     yarn wxt submit \
-      #       --firefox-zip .output/*-firefox.zip \
-      #       --firefox-sources-zip .output/*-sources.zip
-      #   env:
-      #     FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
-      #     FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
-      #     FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+      - name: Submit to Firefox Add-ons
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          yarn wxt submit \
+            --firefox-zip .output/*-firefox.zip \
+            --firefox-sources-zip .output/*-sources.zip
+        env:
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
