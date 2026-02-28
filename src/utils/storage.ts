@@ -10,6 +10,10 @@ export const isDarkModeStorage = storage.defineItem<boolean>('sync:isDarkMode', 
   fallback: false,
 });
 
+export const platformEnabledStorage = storage.defineItem<Record<string, boolean>>('sync:platformEnabled', {
+  fallback: {},
+});
+
 // Note: ga_client_id initialization is handled in analytics.ts since it needs
 // to generate a unique UUID on first access (storage.defineItem doesn't support functions)
 export const gaClientIdStorage = storage.defineItem<string>('local:ga_client_id');

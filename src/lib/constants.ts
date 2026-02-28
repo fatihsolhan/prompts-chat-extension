@@ -138,6 +138,14 @@ export const CHAT_PLATFORMS: Platform[] = [
     inputSelector: 'textarea',
     supportsQuerystring: false,
   },
+  {
+    id: 'duckai',
+    name: 'Duck.ai',
+    icon: '/brand-logos/duckduckgo.svg',
+    baseUrl: 'https://duck.ai',
+    inputSelector: 'textarea',
+    supportsQuerystring: true,
+  },
 ];
 
 export const CODE_PLATFORMS: Platform[] = [
@@ -253,6 +261,8 @@ export function buildPlatformUrl(platformId: string, baseUrl: string, promptText
       return `${baseUrl}/search?q=${encoded}`;
     case 'fal':
       return `${baseUrl}?prompt=${encoded}`;
+    case 'duckai':
+      return `${baseUrl}/chat?q=${encoded}`;
     // Code platforms
     case 'cursor':
       return `${baseUrl}?text=${encoded}`;

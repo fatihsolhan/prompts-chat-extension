@@ -22,6 +22,7 @@ import {
   Layers,
   Moon,
   Search,
+  Settings,
   Sun,
   Tag,
   ThumbsUp,
@@ -29,6 +30,7 @@ import {
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { AboutDialog } from "./AboutDialog";
+import { AISettingsDialog } from "./AISettingsDialog";
 import { Container } from "./Container";
 import { FilterSelect, FilterOption } from "./FilterSelect";
 import { Logo } from "./Logo";
@@ -142,6 +144,21 @@ export function Navbar() {
                 <TooltipContent side="bottom" className="text-xs">
                   {isDarkMode ? "Light mode" : "Dark mode"}
                 </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <AISettingsDialog
+                      trigger={
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      }
+                    />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">AI Settings</TooltipContent>
               </Tooltip>
 
               <Tooltip>
