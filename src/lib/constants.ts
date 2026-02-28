@@ -144,7 +144,7 @@ export const CHAT_PLATFORMS: Platform[] = [
     icon: '/brand-logos/duckduckgo.svg',
     baseUrl: 'https://duck.ai',
     inputSelector: 'textarea',
-    supportsQuerystring: false,
+    supportsQuerystring: true,
   },
 ];
 
@@ -261,6 +261,8 @@ export function buildPlatformUrl(platformId: string, baseUrl: string, promptText
       return `${baseUrl}/search?q=${encoded}`;
     case 'fal':
       return `${baseUrl}?prompt=${encoded}`;
+    case 'duckai':
+      return `${baseUrl}/chat?q=${encoded}`;
     // Code platforms
     case 'cursor':
       return `${baseUrl}?text=${encoded}`;
