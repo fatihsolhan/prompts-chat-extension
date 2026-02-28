@@ -1,3 +1,9 @@
+## [1.5.1](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.5.0...v1.5.1) (2026-02-28)
+
+### 👷 CI
+
+* update release to include firefox ([fe7dfbf](https://github.com/fatihsolhan/prompts-chat-extension/commit/fe7dfbf1e998e367d649752d610586720a30d3f7))
+
 ## [1.5.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.4.0...v1.5.0) (2026-02-28)
 
 ### ✨ Features
