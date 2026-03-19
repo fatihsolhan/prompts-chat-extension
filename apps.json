@@ -28,9 +28,7 @@
       "github": "https://github.com/fatihsolhan/prompts-chat-extension",
       "homepage": "https://prompts.chat",
       "language": "TypeScript",
-      "stars": 0,
-      "forks": 0,
-      "downloadUrl": "https://github.com/fatihsolhan/prompts-chat-extension/releases/latest",
+"downloadUrl": "https://github.com/fatihsolhan/prompts-chat-extension/releases/latest",
       "requirements": "Chrome or Firefox browser",
       "features": [
         "One-click prompt execution on 40+ AI platforms",
