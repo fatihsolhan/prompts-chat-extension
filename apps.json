@@ -1,0 +1,47 @@
+{
+  "$schema": "https://wvw.dev/apps.schema.json",
+  "store": {
+    "name": "prompts.chat",
+    "developer": "Fatih Solhan",
+    "tagline": "AI-powered prompt library for ChatGPT, Claude, Gemini, and more.",
+    "github": "https://github.com/fatihsolhan"
+  },
+  "categories": [
+    { "id": "productivity", "name": "Productivity" },
+    { "id": "developer-tools", "name": "Developer Tools" },
+    { "id": "utilities", "name": "Utilities" }
+  ],
+  "apps": [
+    {
+      "id": "prompts-chat-extension",
+      "name": "prompts.chat",
+      "subtitle": "AI prompt library browser extension",
+      "description": "Browser extension that provides one-click access to a curated prompt library for ChatGPT, Claude, Gemini, Copilot, and 40+ AI platforms.",
+      "longDescription": "prompts.chat is a browser extension built on top of the Awesome ChatGPT Prompts collection. It lets you instantly run prompts on ChatGPT, Claude, Gemini, GitHub Copilot, and more with one click. Features include smart filtering by category, tags, and prompt type (Text, Image, Audio, Video), variable customization with real-time preview, side panel mode, dark/light mode, syntax highlighting for structured prompts, and quick copy to clipboard. Available for Chrome and Firefox.",
+      "icon": "https://raw.githubusercontent.com/fatihsolhan/prompts-chat-extension/main/public/icon/128.png",
+      "iconEmoji": "💬",
+      "category": ["productivity", "developer-tools", "utilities"],
+      "platform": "Web",
+      "price": "Free",
+      "github": "https://github.com/fatihsolhan/prompts-chat-extension",
+      "homepage": "https://prompts.chat",
+      "language": "TypeScript",
+      "installCommand": "yarn install && yarn build",
+      "downloadUrl": "https://github.com/fatihsolhan/prompts-chat-extension/releases/latest",
+      "requirements": "Chrome or Firefox browser",
+      "features": [
+        "One-click prompt execution on 40+ AI platforms",
+        "Smart filtering by category, tags, and prompt type",
+        "Variable customization with real-time preview",
+        "Side panel mode for browsing while using prompts",
+        "Dark and light mode support",
+        "Syntax highlighting for structured prompts (JSON/YAML)",
+        "Quick copy to clipboard",
+        "Firefox and Chrome support"
+      ],
+      "screenshots": [
+        "https://raw.githubusercontent.com/fatihsolhan/prompts-chat-extension/main/public/prompts-chat-img.png"
+      ]
+    }
+  ]
+}
