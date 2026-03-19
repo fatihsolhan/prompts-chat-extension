@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.5.2...v1.6.0) (2026-03-19)
+
+### ✨ Features
+
+* add prompts.chat browser extension to app registry ([#12](https://github.com/fatihsolhan/prompts-chat-extension/issues/12)) ([e61b6b0](https://github.com/fatihsolhan/prompts-chat-extension/commit/e61b6b04e68344a1e07236a0ef2213cbc7ddcb11))
+
 ## [1.5.2](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.5.1...v1.5.2) (2026-02-28)
 
 ### 🔧 Maintenance
