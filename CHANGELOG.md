@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.6.0...v1.6.1) (2026-03-20)
+
+### 🐛 Bug Fixes
+
+* handle undefined content in HighlightedContent to prevent white screen crash ([025029e](https://github.com/fatihsolhan/prompts-chat-extension/commit/025029e292ceecae894120e19a200dc1c9b8c65d))
+
 ## [1.6.0](https://github.com/fatihsolhan/prompts-chat-extension/compare/v1.5.2...v1.6.0) (2026-03-19)
 
 ### ✨ Features
