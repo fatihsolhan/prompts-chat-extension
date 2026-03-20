@@ -13,7 +13,7 @@ function mapApiPromptToPrompt(apiPrompt: ApiPrompt): Prompt {
     title: apiPrompt.title,
     slug: apiPrompt.slug,
     description: apiPrompt.description || undefined,
-    content: apiPrompt.content,
+    content: apiPrompt.content || "",
     type: apiPrompt.type || "TEXT",
     structuredFormat: apiPrompt.structuredFormat || undefined,
     mediaUrl: apiPrompt.mediaUrl || undefined,

@@ -144,6 +144,7 @@ export function HighlightedContent({
 
   const processedContent = useMemo(() => {
     // Don't replace variables if editable - we'll render them as interactive components
+    if (!content) return "";
     if (!isStructured || !variables.length || editable) return content;
     let result = content;
     for (const variable of variables) {
